@@ -1,0 +1,155 @@
+/* WeatherForecast.css */
+
+/* Overall card styling */
+.card {
+  background: linear-gradient(135deg, #f5f9f4, #eaf5ea);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #d4e2d4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Title styling */
+.card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2e5d34; /* Deep green */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title::before {
+  content: "🌱";
+}
+
+/* Search Section */
+.search-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.search-form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #cde3cd;
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 0.95rem;
+  background: transparent;
+  color: #2e5d34;
+}
+
+.search-input::placeholder {
+  color: #8ca68c;
+}
+
+.location-button {
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.location-button:hover {
+  background: #3b9440;
+}
+
+/* Current Weather */
+.current-weather {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 1rem 0;
+}
+
+.current-weather .weather-icon {
+  width: 64px;
+  height: 64px;
+}
+
+.temperature {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2e5d34;
+}
+
+.temperature span {
+  font-size: 1.2rem;
+  vertical-align: super;
+}
+
+.description {
+  font-size: 1rem;
+  color: #557d55;
+}
+
+/* Hourly Forecast */
+.weather-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.weather-item {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  text-align: center;
+  min-width: 80px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0ebe0;
+}
+
+.weather-item .time {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #2e5d34;
+}
+
+.weather-item .weather-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.weather-item .temperature {
+  font-size: 0.9rem;
+  color: #3b9440;
+  font-weight: 600;
+}
+
+/* No Results Message */
+.no-results {
+  text-align: center;
+  padding: 1rem;
+  color: #666;
+}
+
+.no-results img.icon {
+  width: 80px;
+  margin-bottom: 0.5rem;
+}
+
+.no-results .title {
+  font-weight: bold;
+  color: #2e5d34;
+}
+
+.no-results .message {
+  font-size: 0.9rem;
+  color: #777;
+}

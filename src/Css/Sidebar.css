@@ -1,0 +1,79 @@
+.sidebar {
+  width: 250px;
+  z-index: 1030 !important;
+  height: calc(100vh - 75px);
+  display: flex;
+  flex-direction: column;
+  margin-top: 1px;
+  padding-top: 80px;
+}
+
+.nav{
+  margin-top: 50px;
+}
+
+.nav-link {
+  color: #333;
+  padding: 10px 20px;
+  transition: background-color 0.3s, color 0.3s;
+  display: flex;
+  align-items: center;
+}
+
+.nav-link:hover {
+  background-color: #f1f1f1;
+  color: #000;
+}
+
+.nav-item.active .nav-link {
+  background-color: #e7f8ec;
+  color: #1d7f3f;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #ddd;
+  margin-top: auto;
+  margin-bottom: 80px;
+  padding-top: 15px;
+}
+
+/* Add this to sidebar.css */
+
+.nav-link.active-link {
+  background-color: #e7f1ff; /* Light blue background */
+  color: #5cb85c !important; /* Bootstrap primary color */
+  font-weight: bold;
+  border-left: 4px solid #5cb85c;
+}
+
+/* Sidebar transitions */
+.sidebar-open {
+  transform: translateX(0);
+}
+
+.sidebar-closed {
+  transform: translateX(-100%);
+}
+
+.hamburger{
+  margin-top: 50px;
+}
+/* Mobile sidebar visibility */
+@media (max-width: 991px) {
+  .mobile-sidebar-open {
+    display: block !important;
+  }
+
+  .mobile-sidebar-closed {
+    display: none !important;
+  }
+
+  .sidebar {
+    transition: transform 0.3s ease;
+  }
+}
+
