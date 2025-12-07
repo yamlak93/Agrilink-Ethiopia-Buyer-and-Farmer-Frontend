@@ -12,7 +12,7 @@ import {
   Star,
 } from "lucide-react";
 import Navbar from "./Navbar";
-import Footer from "./footer";
+import Footer from "./Footer";
 import heroImg from "../assets/heroImg.jpg";
 import whyAgrilink from "../assets/whyAgrilink.png";
 import "../css/MainPage.css";
