@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Mail, Phone, MapPin, Clock, Send, ChevronRight } from "lucide-react";
-import Navbar from "./navbar";
-import Footer from "./footer";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 import contactImg from "../assets/contactImg.png";
-import "../css/ContactPage.css";
+import "../Css/ContactPage.css";
 import emailjs from "@emailjs/browser";
 import { useTranslation } from "react-i18next";
 
