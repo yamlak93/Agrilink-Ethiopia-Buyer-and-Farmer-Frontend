@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../Css/Devices.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ProductCard from "../components/ProductCard";
 import Loader from "../../assets/Agriculture Loader.mp4";
