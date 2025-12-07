@@ -346,7 +346,8 @@
     "newPasswordRequired": "New password is required.",
     "confirmPasswordRequired": "Confirm password is required.",
     "passwordMin6": "Password must be at least 6 characters.",
-    "passwordResetFailed": "Failed to reset password. Please try again."
+    "passwordResetFailed": "Failed to reset password. Please try again.",
+    "invalidPhone": "Phone number must be exactly 10 digits"
   },
   "confirmations": {
     "title": "Confirmation",

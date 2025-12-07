@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Loader from "../../assets/Agriculture Loader.webm";
 import { useTranslation } from "react-i18next";
+import apiClient from "../../api/api"; // Import the api.js client
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
 const MarketStatus = () => {
   const { t } = useTranslation();
   const [marketData, setMarketData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMarketStatus = async () => {
@@ -19,12 +21,7 @@ const MarketStatus = () => {
           throw new Error("No token available");
         }
 
-        const response = await axios.get(
-          "http://localhost:5000/api/tips/market-status",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await apiClient.get("/tips/market-status");
         console.log("Market status response:", response.data);
         setMarketData(response.data.marketData || []);
       } catch (err) {
@@ -32,6 +29,14 @@ const MarketStatus = () => {
           "Failed to fetch market status:",
           err.response?.data || err.message
         );
+        if (err.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login", {
+            replace: true,
+            state: { message: "Session expired. Please log in again." },
+          });
+          return;
+        }
         setError(t("tipsPage.marketStatus.error"));
       } finally {
         setLoading(false);
@@ -39,7 +44,7 @@ const MarketStatus = () => {
     };
 
     fetchMarketStatus();
-  }, [t]);
+  }, [t, navigate]);
 
   return (
     <div className="market-status">

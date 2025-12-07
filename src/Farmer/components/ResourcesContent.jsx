@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import TipCard from "./TipCard";
-import axios from "axios";
 import Loader from "../../assets/Agriculture Loader.webm";
+import apiClient from "../../api/api"; // Import the api.js client
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
 const ResourcesContent = () => {
   const [resourcesData, setResourcesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -22,12 +24,7 @@ const ResourcesContent = () => {
           token.substring(0, 5) + "..."
         );
 
-        const response = await axios.get(
-          "http://localhost:5000/api/tips/resources",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await apiClient.get("/tips/resources");
         console.log("API response:", response.data);
         setResourcesData(response.data.resources || []);
       } catch (err) {
@@ -36,6 +33,14 @@ const ResourcesContent = () => {
           response: err.response?.data,
           status: err.response?.status,
         });
+        if (err.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login", {
+            replace: true,
+            state: { message: "Session expired. Please log in again." },
+          });
+          return;
+        }
         setError("Failed to load resources. Please try again.");
       } finally {
         setLoading(false);
@@ -43,7 +48,7 @@ const ResourcesContent = () => {
     };
 
     fetchResources();
-  }, []);
+  }, [navigate]);
 
   return (
     <div>

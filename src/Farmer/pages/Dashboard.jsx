@@ -10,13 +10,13 @@ import ProductDetailModal from "../components/ProductDetailModal";
 import EditProductModal from "../components/EditProductModal";
 import ConfirmationModal from "../components/ConfirmationModal";
 import StylishModal from "../components/StylishModal";
-import axios from "axios";
-import { useTranslation } from "react-i18next"; // Import useTranslation
+import apiClient from "../../api/api"; // Import the api.js client
+import { useTranslation } from "react-i18next";
 
-import Loader from "../../assets/Agriculture Loader.mp4"; // Import the loader video
+import Loader from "../../assets/Agriculture Loader.mp4";
 
 const Dashboard = () => {
-  const { t, i18n } = useTranslation(); // Initialize i18n translation
+  const { t, i18n } = useTranslation();
   const [products, setProducts] = useState([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
@@ -40,18 +40,18 @@ const Dashboard = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
-        console.log("Retrieved token:", token); // Debug token
+        console.log("Retrieved token:", token);
         if (!token) {
           console.log("No token found, redirecting to login");
           navigate("/login", { replace: true });
           return;
         }
 
-        // Safely decode JWT token
+        // Safely decode JWT token (optional, for additional validation)
         let decodedToken;
         try {
           decodedToken = JSON.parse(atob(token.split(".")[1]));
-          console.log("Decoded token payload:", decodedToken); // Debug payload
+          console.log("Decoded token payload:", decodedToken);
         } catch (decodeError) {
           console.error("Failed to decode token:", decodeError);
           navigate("/login", {
@@ -61,7 +61,7 @@ const Dashboard = () => {
           return;
         }
 
-        const farmerId = decodedToken.farmerId || decodedToken.id; // Try alternative field names
+        const farmerId = decodedToken.farmerId || decodedToken.id;
         if (!farmerId) {
           console.error("farmerId not found in token:", decodedToken);
           navigate("/login", {
@@ -71,40 +71,28 @@ const Dashboard = () => {
           return;
         }
 
-        // Fetch products and sort by newest first
-        const productsResponse = await axios.get(
-          "http://localhost:5000/api/products",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        // Fetch data using apiClient
+        const [
+          productsResponse,
+          ordersResponse,
+          deliveriesResponse,
+          analyticsResponse,
+        ] = await Promise.all([
+          apiClient.get("/products"),
+          apiClient.get(`/orders/total?farmerId=${farmerId}`),
+          apiClient.get(`/deliveries/pending?farmerId=${farmerId}`),
+          apiClient.get("/analytics"),
+        ]);
+
         setTotalProducts(productsResponse.data.length);
         const sortedProducts = productsResponse.data
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt descending (newest first)
-          .slice(0, 3); // Limit to 3 newest products
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 3);
         setProducts(sortedProducts);
 
-        // Fetch total orders
-        const ordersResponse = await axios.get(
-          `http://localhost:5000/api/orders/total?farmerId=${farmerId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
         setTotalOrders(ordersResponse.data.totalOrders);
-
-        // Fetch pending deliveries
-        const deliveriesResponse = await axios.get(
-          `http://localhost:5000/api/deliveries/pending?farmerId=${farmerId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
         setPendingDeliveries(deliveriesResponse.data.pendingDeliveries);
 
-        // Fetch analytics data
-        const analyticsResponse = await axios.get(
-          "http://localhost:5000/api/analytics",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
         const { salesAnalytics } = analyticsResponse.data;
         setAnalyticsData({
           totalRevenue: `${Number(salesAnalytics.totalRevenue || 0).toFixed(
@@ -126,7 +114,7 @@ const Dashboard = () => {
           }
         );
       } catch (err) {
-        console.error("Fetch error:", err.response?.data || err.message); // Debug error
+        console.error("Fetch error:", err.response?.data || err.message);
         let errorMessage = "Failed to fetch data. Please try again.";
         let errorDetails = err.message || "Unknown error";
 
@@ -203,12 +191,7 @@ const Dashboard = () => {
         navigate("/login", { replace: true });
         return;
       }
-      await axios.delete(
-        `http://localhost:5000/api/products/${selectedProduct.productId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await apiClient.delete(`/products/${selectedProduct.productId}`);
       setProducts(
         products.filter((p) => p.productId !== selectedProduct.productId)
       );

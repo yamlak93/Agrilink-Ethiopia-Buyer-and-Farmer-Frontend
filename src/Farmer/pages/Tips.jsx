@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import "../../Css/Devices.css"; // Link to Devices.css
+import React, { useState, useEffect } from "react";
+import "../../Css/Devices.css";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import WeatherForecast from "../components/WeatherForecast";
@@ -9,10 +9,44 @@ import AlertsContent from "../components/AlertsContent";
 import ResourcesContent from "../components/ResourcesContent";
 import MarketStatus from "../components/MarketStatus";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 const Tips = () => {
   const [activeTab, setActiveTab] = useState("farmingTips");
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        // Example API call (uncomment and adjust endpoint if needed)
+        // const response = await apiClient.get("/tips/data");
+        // Use response.data as needed (e.g., pass to child components)
+      } catch (err) {
+        console.error(
+          "Failed to fetch tips data:",
+          err.response?.data || err.message
+        );
+        if (err.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login", {
+            replace: true,
+            state: { message: "Session expired. Please log in again." },
+          });
+          return;
+        }
+        navigate("/error", { state: { error: err.message }, replace: true });
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
 
   const renderContent = () => {
     switch (activeTab) {

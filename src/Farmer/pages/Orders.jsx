@@ -8,7 +8,7 @@ import OrderDetailModal from "../components/OrderDetailModal";
 import ConfirmationModal from "../components/ConfirmationModal";
 import StylishModal from "../components/StylishModal";
 import { useTranslation } from "react-i18next";
-import axios from "axios";
+import apiClient from "../../api/api"; // Import the api.js client
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "../../assets/Agriculture Loader.mp4";
 
@@ -53,9 +53,7 @@ const Orders = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:5000/api/orders", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get("/orders");
 
       const transformedOrders = response.data
         .map((order) => {
@@ -68,16 +66,16 @@ const Orders = () => {
               order.buyerPhone != null ? String(order.buyerPhone) : "",
             quantity: firstProduct.quantity || 0,
             total: order.total || 0,
-            status: (order.status || "unknown").toLowerCase(), // Ensure status is always set
+            status: (order.status || "unknown").toLowerCase(),
             date: order.date || "",
             deliveryDate: order.deliveryDate || "",
-            updatedAt: order.updatedAt || "", // Include updatedAt
-            products: order.products || [], // Ensure products array
+            updatedAt: order.updatedAt || "",
+            products: order.products || [],
           };
         })
         .sort((a, b) => new Date(b.date) - new Date(a.date));
       setOrders(transformedOrders);
-      console.log("Transformed orders:", transformedOrders); // Debug log
+      console.log("Transformed orders:", transformedOrders);
     } catch (err) {
       console.error(
         "Failed to fetch orders:",
@@ -127,7 +125,7 @@ const Orders = () => {
   const handleOpenDetailModal = (order) => {
     setSelectedOrder(order);
     setDetailModalVisible(true);
-    console.log("Selected order for modal:", order); // Debug log
+    console.log("Selected order for modal:", order);
   };
 
   const handleCloseDetailModal = () => {
@@ -159,16 +157,12 @@ const Orders = () => {
         return;
       }
 
-      await axios.patch(
-        `http://localhost:5000/api/orders/${selectedOrder.orderId}/cancel`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.patch(`/orders/${selectedOrder.orderId}/cancel`);
 
       setConfirmationModalVisible(false);
       setSuccessMessage(t("orders.orderSuccess"));
       setSuccessModalVisible(true);
-      fetchOrders(); // Re-fetch after cancel
+      fetchOrders();
     } catch (err) {
       console.error("Failed to cancel order:", err.message);
       setSuccessMessage(t("orders.orderFailed"));

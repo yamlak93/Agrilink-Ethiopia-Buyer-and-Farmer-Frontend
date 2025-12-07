@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { useNavigate } from "react-router-dom";
 import "../../Css/Devices.css";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
@@ -11,9 +11,9 @@ import EditProductModal from "../components/EditProductModal";
 import ConfirmationModal from "../components/ConfirmationModal";
 import StylishModal from "../components/StylishModal";
 import "bootstrap/dist/css/bootstrap.min.css";
-import axios from "axios";
-import Loader from "../../assets/Agriculture Loader.mp4"; // Import the loader video
-import { useTranslation } from "react-i18next"; // Import useTranslation
+import apiClient from "../../api/api"; // Import the api.js client
+import Loader from "../../assets/Agriculture Loader.mp4";
+import { useTranslation } from "react-i18next";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -25,24 +25,21 @@ const Products = () => {
     useState(false);
   const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [loading, setLoading] = useState(true); // Controlled by useEffect
-  const navigate = useNavigate(); // Initialize navigate for redirection
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Fetch products for the logged-in farmer on mount
   useEffect(() => {
     const fetchProducts = async () => {
-      setLoading(true); // Show loading modal when fetching starts
+      setLoading(true);
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          navigate("/login", { replace: true }); // Redirect to login if no token
+          navigate("/login", { replace: true });
           return;
         }
-        const response = await axios.get("http://localhost:5000/api/products", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log("Products data:", response.data); // Debug: Log the API response
-        setProducts(response.data); // API should include category or equivalent field
+        const response = await apiClient.get("/products");
+        console.log("Products data:", response.data);
+        setProducts(response.data);
       } catch (err) {
         let errorMessage = "Failed to fetch products. Please try again.";
         let errorDetails = err.message || "Unknown error";
@@ -52,12 +49,11 @@ const Products = () => {
           errorDetails = "Please check your internet connection.";
         } else if (err.response) {
           if (err.response.status === 401) {
-            // Handle JWT expiration
-            localStorage.removeItem("token"); // Clear expired token
+            localStorage.removeItem("token");
             navigate("/login", {
               replace: true,
               state: { message: "Session expired. Please log in again." },
-            }); // Redirect to login
+            });
             return;
           }
           errorMessage =
@@ -75,13 +71,12 @@ const Products = () => {
           },
         });
       } finally {
-        setLoading(false); // Hide loading modal when fetching ends
+        setLoading(false);
       }
     };
     fetchProducts();
   }, [navigate]);
 
-  // Filter products based on search term and category
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -89,10 +84,10 @@ const Products = () => {
       product.unit.toLowerCase().includes(searchTerm.toLowerCase());
 
     const productCategory =
-      product.category || // Preferred field
-      product.type || // Alternative field
-      product.productCategory || // Another alternative
-      "Uncategorized"; // Default if no match
+      product.category ||
+      product.type ||
+      product.productCategory ||
+      "Uncategorized";
 
     const matchesCategory =
       !categoryFilter ||
@@ -101,11 +96,10 @@ const Products = () => {
 
     console.log(
       `Product: ${product.title}, Category: ${productCategory}, Filter: ${categoryFilter}, Matches: ${matchesCategory}`
-    ); // Debug each product
+    );
     return matchesSearch && matchesCategory;
   });
 
-  // Handlers for Detail Modal
   const handleOpenDetailModal = (product) => {
     setSelectedProduct(product);
     setDetailModalVisible(true);
@@ -115,7 +109,6 @@ const Products = () => {
     setSelectedProduct(null);
   };
 
-  // Handlers for Edit Modal
   const handleOpenEditModal = () => {
     setDetailModalVisible(false);
     setEditModalVisible(true);
@@ -134,7 +127,6 @@ const Products = () => {
     setSuccessModalVisible(true);
   };
 
-  // Handlers for Confirmation Modal
   const handleOpenConfirmationModal = (product) => {
     setSelectedProduct(product);
     setDetailModalVisible(false);
@@ -143,19 +135,14 @@ const Products = () => {
   const handleCloseConfirmationModal = () => setConfirmationModalVisible(false);
 
   const handleConfirmDelete = async () => {
-    setLoading(true); // Show loading modal during delete
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login", { replace: true }); // Redirect to login if no token
+        navigate("/login", { replace: true });
         return;
       }
-      await axios.delete(
-        `http://localhost:5000/api/products/${selectedProduct.productId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await apiClient.delete(`/products/${selectedProduct.productId}`);
       setProducts(
         products.filter((p) => p.productId !== selectedProduct.productId)
       );
@@ -170,12 +157,11 @@ const Products = () => {
         errorDetails = "Please check your internet connection.";
       } else if (err.response) {
         if (err.response.status === 401) {
-          // Handle JWT expiration
-          localStorage.removeItem("token"); // Clear expired token
+          localStorage.removeItem("token");
           navigate("/login", {
             replace: true,
             state: { message: "Session expired. Please log in again." },
-          }); // Redirect to login
+          });
           return;
         }
         errorMessage =
@@ -193,16 +179,16 @@ const Products = () => {
         },
       });
     } finally {
-      setLoading(false); // Hide loading modal after delete
+      setLoading(false);
     }
   };
 
-  // Handlers for Success Modal
   const handleCloseSuccessModal = () => {
     setSuccessModalVisible(false);
     setSelectedProduct(null);
   };
-  const { t, i18n } = useTranslation(); // Initialize i18n translation
+  const { t, i18n } = useTranslation();
+
   return (
     <>
       <Navbar />
@@ -314,7 +300,6 @@ const Products = () => {
           </div>
         </div>
       </div>
-      {/* Modals */}
       <ProductDetailModal
         isVisible={isDetailModalVisible}
         product={selectedProduct}

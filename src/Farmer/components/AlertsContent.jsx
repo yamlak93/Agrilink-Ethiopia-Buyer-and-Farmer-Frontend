@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import TipCard from "./TipCard";
-import axios from "axios";
-import Loader from "../../assets/Agriculture Loader.webm"; // Added loader import
+import Loader from "../../assets/Agriculture Loader.webm";
+import apiClient from "../../api/api"; // Import the api.js client
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
 const AlertsContent = () => {
   const [alertsData, setAlertsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -18,18 +20,21 @@ const AlertsContent = () => {
           throw new Error("No token available");
         }
 
-        const response = await axios.get(
-          "http://localhost:5000/api/tips/alerts",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await apiClient.get("/tips/alerts");
         setAlertsData(response.data.alerts || []);
       } catch (err) {
         console.error(
           "Failed to fetch alerts:",
           err.response?.data || err.message
         );
+        if (err.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login", {
+            replace: true,
+            state: { message: "Session expired. Please log in again." },
+          });
+          return;
+        }
         setError("Failed to load alerts. Please try again.");
       } finally {
         setLoading(false);
@@ -37,7 +42,7 @@ const AlertsContent = () => {
     };
 
     fetchAlerts();
-  }, []);
+  }, [navigate]);
 
   return (
     <div>

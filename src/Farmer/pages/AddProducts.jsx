@@ -9,7 +9,7 @@ import ProductImageCard from "../components/ProductImageCard";
 import StylishModal from "../components/StylishModal";
 import LoadingModal from "../../others/LoadingPage";
 import "bootstrap/dist/css/bootstrap.min.css";
-import axios from "axios";
+import apiClient from "../../api/api"; // Import the api.js client
 import { useTranslation } from "react-i18next";
 
 const AddProduct = () => {
@@ -81,12 +81,14 @@ const AddProduct = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/products", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      if (!token) {
+        navigate("/login", {
+          replace: true,
+          state: { message: "No token available. Please log in again." },
+        });
+        return;
+      }
+      await apiClient.post("/products", formData);
 
       setIsLoading(false);
       setModal({
@@ -132,12 +134,20 @@ const AddProduct = () => {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login", {
+        replace: true,
+        state: { message: "No token available. Please log in again." },
+      });
+    }
+
     const modalState = location.state?.modal;
     if (modalState) {
       setModal(modalState);
       window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [location.state, navigate]);
 
   return (
     <>

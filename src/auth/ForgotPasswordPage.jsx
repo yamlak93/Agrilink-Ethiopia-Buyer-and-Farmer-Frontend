@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Phone, Lock, User, Globe, Key } from "lucide-react";
 import logoGreen from "../assets/logoGreen.png";
@@ -17,11 +17,13 @@ export default function ForgotPasswordPage() {
     newPassword: "",
     confirmPassword: "",
   });
+  const [codeDigits, setCodeDigits] = useState(["", "", "", "", "", ""]); // For 6 input boxes
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState(
     localStorage.getItem("userLanguage") || "en"
   );
+  const inputRefs = useRef([]); // Refs for focusing input boxes
 
   // Handle language change
   const handleLanguageSelect = (value) => {
@@ -30,11 +32,53 @@ export default function ForgotPasswordPage() {
     localStorage.setItem("userLanguage", value);
   };
 
-  // Handle form field changes
+  // Handle form field changes (identifier, role, passwords)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  // Handle code digit changes
+  const handleCodeChange = (index, value) => {
+    if (!/^[0-9]?$/.test(value)) return; // Allow only single digit or empty
+
+    const newCodeDigits = [...codeDigits];
+    newCodeDigits[index] = value;
+    setCodeDigits(newCodeDigits);
+
+    // Update formData.code
+    const newCode = newCodeDigits.join("");
+    setFormData((prev) => ({ ...prev, code: newCode }));
+    setErrors((prev) => ({ ...prev, code: "" }));
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  // Handle backspace and arrow key navigation
+  const handleCodeKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !codeDigits[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1].focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  // Handle pasting code
+  const handleCodePaste = (e) => {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, ""); // Only digits
+    if (pasted.length === 6) {
+      const newCodeDigits = pasted.split("").slice(0, 6);
+      setCodeDigits(newCodeDigits);
+      setFormData((prev) => ({ ...prev, code: newCodeDigits.join("") }));
+      setErrors((prev) => ({ ...prev, code: "" }));
+      inputRefs.current[5].focus();
+    }
   };
 
   // Step 1: Request code
@@ -236,19 +280,33 @@ export default function ForgotPasswordPage() {
                   <Key size={16} className="me-1" />
                   {t("auth.verificationCode")}
                 </label>
-                <input
-                  type="text"
-                  name="code"
-                  maxLength={6}
-                  className={`form-control text-center fs-4 ${
-                    errors.code ? "is-invalid" : ""
-                  }`}
-                  placeholder="000000"
-                  value={formData.code}
-                  onChange={handleChange}
-                />
+                <div className="d-flex justify-content-center gap-2">
+                  {codeDigits.map((digit, index) => (
+                    <input
+                      key={index}
+                      type="text"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleCodeChange(index, e.target.value)}
+                      onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                      onPaste={index === 0 ? handleCodePaste : null}
+                      ref={(el) => (inputRefs.current[index] = el)}
+                      className={`form-control text-center fs-4 ${
+                        errors.code ? "is-invalid" : ""
+                      }`}
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        borderRadius: "8px",
+                      }}
+                      placeholder="0"
+                    />
+                  ))}
+                </div>
                 {errors.code && (
-                  <div className="invalid-feedback">{errors.code}</div>
+                  <div className="invalid-feedback d-block text-center">
+                    {errors.code}
+                  </div>
                 )}
               </div>
               <div className="d-grid">
@@ -454,6 +512,10 @@ export default function ForgotPasswordPage() {
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.6s ease forwards; }
         .animate-fadeInUp { animation: fadeIn 0.8s ease forwards; }
+        .form-control:focus {
+          border-color: #2ecc71;
+          box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
+        }
       `}</style>
     </div>
   );

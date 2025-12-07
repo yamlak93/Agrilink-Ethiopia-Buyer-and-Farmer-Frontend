@@ -345,7 +345,8 @@
     "newPasswordRequired": "አዲስ የይለፍ ቃል ያስፈልጋል።",
     "confirmPasswordRequired": "የይለፍ ቃል ማረጋገጫ ያስፈልጋል።",
     "passwordMin6": "የይለፍ ቃል ቢያንስ 6 ቁጥሮች መሆን አለበት።",
-    "passwordResetFailed": "የይለፍ ቃል መቀየር አልተሳካም። እባክዎ እንደገና ይሞክሩ።"
+    "passwordResetFailed": "የይለፍ ቃል መቀየር አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
+    "invalidPhone": "የስልክ ቁጥር በትክክል 10 አሃዞች መሆን አለበት።"  
   },
   "confirmations": {
     "title": "አረጋግጥ",

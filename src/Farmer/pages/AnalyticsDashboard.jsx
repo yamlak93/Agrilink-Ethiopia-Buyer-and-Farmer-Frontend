@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../Css/Devices.css"; // Link to Devices.css
+import "../../Css/Devices.css";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
-import SummaryCard from "../components/SummaryCard";
-import SalesAnalytics from "../components/SalesAnalytics"; // New component for sales content
-import ProductAnalytics from "../components/ProductAnalytics"; // New component for product content
-import BuyersAnalytics from "../components/BuyersAnalytics"; // New component for buyers content
+import SalesAnalytics from "../components/SalesAnalytics";
+import ProductAnalytics from "../components/ProductAnalytics";
+import BuyersAnalytics from "../components/BuyersAnalytics";
 import Loader from "../../assets/Agriculture Loader.webm";
-import { useTranslation } from "react-i18next"; // ✅ i18n hook
+import { useTranslation } from "react-i18next";
+import apiClient from "../../api/api"; // Import the api.js client
 
-// Error Boundary Component
 class ErrorBoundary extends React.Component {
   state = { hasError: false };
 
@@ -25,7 +24,7 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      return null; // Component will redirect in componentDidCatch
+      return null;
     }
     return this.props.children;
   }
@@ -33,11 +32,11 @@ class ErrorBoundary extends React.Component {
 
 const AnalyticsDashboard = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("sales"); // State to track the active tab
-  const [loading, setLoading] = useState(true); // State to manage loading
-  const [error, setError] = useState(null); // State to manage errors
+  const [activeTab, setActiveTab] = useState("sales");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { t } = useTranslation();
-  // Fetch analytics data
+
   useEffect(() => {
     const fetchAnalyticsData = async () => {
       setLoading(true);
@@ -49,12 +48,8 @@ const AnalyticsDashboard = () => {
           return;
         }
 
-        // Simulate API call (replace with actual endpoint if needed)
-        // For now, relying on child components to fetch their data
-        // const response = await axios.get("http://localhost:5000/api/analytics", {
-        //   headers: { Authorization: `Bearer ${token}` },
-        // });
-        // const data = response.data;
+        const response = await apiClient.get("/analytics");
+        const data = response.data; // Uncomment and use if child components don't fetch data
       } catch (err) {
         console.error(
           "Failed to fetch analytics:",
@@ -70,11 +65,10 @@ const AnalyticsDashboard = () => {
     fetchAnalyticsData();
   }, [navigate]);
 
-  // Simulate loading completion (can be removed if API call is implemented)
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); // Simulate 1-second load time
+    }, 1000);
     return () => clearTimeout(timer);
   }, [activeTab]);
 
@@ -104,7 +98,6 @@ const AnalyticsDashboard = () => {
             <h2>{t("analytics.title")}</h2>
             <p className="text-muted">{t("analytics.subtitle")}</p>
           </header>
-          {/* Tab navigation for Sales, Products, and Buyers */}
           <ul className="nav nav-tabs mb-4">
             <li className="nav-item">
               <button
@@ -142,7 +135,7 @@ const AnalyticsDashboard = () => {
                 padding: "20px",
                 borderRadius: "10px",
                 boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                minHeight: "400px", // Ensure it takes up space
+                minHeight: "400px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

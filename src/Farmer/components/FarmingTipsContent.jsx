@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import TipCard from "./TipCard";
-import axios from "axios";
 import Loader from "../../assets/Agriculture Loader.webm";
 import { useTranslation } from "react-i18next";
+import apiClient from "../../api/api"; // Import the api.js client
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
 const FarmingTipsContent = () => {
   const { t } = useTranslation();
   const [tipsData, setTipsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFarmingTips = async () => {
@@ -18,16 +20,18 @@ const FarmingTipsContent = () => {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No token available");
 
-        const response = await axios.get(
-          "http://localhost:5000/api/tips/farming-tips",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
+        const response = await apiClient.get("/tips/farming-tips");
         setTipsData(response.data.tips || []);
       } catch (err) {
         console.error("Failed to fetch farming tips:", err);
+        if (err.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login", {
+            replace: true,
+            state: { message: "Session expired. Please log in again." },
+          });
+          return;
+        }
         setError(t("tipsPage.farmingTips.error"));
       } finally {
         setLoading(false);
@@ -35,7 +39,7 @@ const FarmingTipsContent = () => {
     };
 
     fetchFarmingTips();
-  }, [t]);
+  }, [t, navigate]);
 
   return (
     <div>

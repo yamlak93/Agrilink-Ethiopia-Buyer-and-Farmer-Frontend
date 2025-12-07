@@ -344,7 +344,8 @@
     "newPasswordRequired": "Jecha iccitii haaraa barbaachisa.",
     "confirmPasswordRequired": "Jecha iccitii mirkaneessuu barbaachisa.",
     "passwordMin6": "Jechi iccitii hangafni isaa 6 ta'uu qaba.",
-    "passwordResetFailed": "Jecha iccitii deebisuu hin milkaa'in. Mee deebi'ee yaali."
+    "passwordResetFailed": "Jecha iccitii deebisuu hin milkaa'in. Mee deebi'ee yaali.",
+    "invalidPhone": "Lakkoofsa bilbilaan qabxiilee 10 qofa ta’uu qaba"
   },
   "confirmations": {
     "title": "Mirkanneessi",

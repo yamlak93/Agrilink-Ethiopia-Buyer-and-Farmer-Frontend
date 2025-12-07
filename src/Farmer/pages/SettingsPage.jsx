@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../Css/Devices.css"; // Link to Devices.css
+import "../../Css/Devices.css";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import StylishModal from "../components/StylishModal";
@@ -16,9 +16,9 @@ import {
   faMapMarkerAlt,
   faPlusCircle,
 } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
+import apiClient from "../../api/api"; // Import the api.js client
 import "bootstrap/dist/css/bootstrap.min.css";
-import Loader from "../../assets/Agriculture Loader.mp4"; // Import the loader video
+import Loader from "../../assets/Agriculture Loader.mp4";
 import { useTranslation } from "react-i18next";
 
 // Error Boundary Component
@@ -77,14 +77,14 @@ const SettingsPage = () => {
     newPassword: false,
     confirmPassword: false,
   });
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const farmerId = user.id || "";
 
   useEffect(() => {
     const fetchUserData = async () => {
-      setLoading(true); // Show loader when fetching starts
+      setLoading(true);
       console.log("Fetching user data, farmerId:", farmerId);
       try {
         const token = localStorage.getItem("token");
@@ -94,12 +94,7 @@ const SettingsPage = () => {
           navigate("/login", { replace: true });
           return;
         }
-        const response = await axios.get(
-          `http://localhost:5000/api/settings/farmers/${farmerId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await apiClient.get(`/settings/farmers/${farmerId}`);
         console.log("API Response:", response.data);
         setProfileData({
           fullName: response.data.farmerName || "",
@@ -116,7 +111,7 @@ const SettingsPage = () => {
         );
         navigate("/error", { state: { error: err.message }, replace: true });
       } finally {
-        setLoading(false); // Hide loader when fetching ends
+        setLoading(false);
       }
     };
     fetchUserData().catch((err) => {
@@ -129,12 +124,7 @@ const SettingsPage = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token available");
-      const response = await axios.get(
-        `http://localhost:5000/api/farmerlocations/${farmerId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await apiClient.get(`/farmerlocations/${farmerId}`);
       setFarmLocations(response.data.locations || []);
     } catch (err) {
       console.error("Failed to fetch farm locations:", err);
@@ -144,7 +134,7 @@ const SettingsPage = () => {
         type: "error",
       });
     } finally {
-      setLoading(false); // Ensure loader is hidden after fetch
+      setLoading(false);
     }
   };
 
@@ -159,19 +149,15 @@ const SettingsPage = () => {
   };
 
   const handleSave = async () => {
-    setLoading(true); // Show loader during save
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token available");
-      await axios.put(
-        `http://localhost:5000/api/settings/farmers/${farmerId}`,
-        {
-          farmerName: profileData.fullName,
-          phoneNumber: profileData.phoneNumber.replace("+251 ", ""),
-          location: profileData.location,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.put(`/settings/farmers/${farmerId}`, {
+        farmerName: profileData.fullName,
+        phoneNumber: profileData.phoneNumber.replace("+251 ", ""),
+        location: profileData.location,
+      });
       setIsEditing(false);
       setModal({
         isVisible: true,
@@ -186,17 +172,16 @@ const SettingsPage = () => {
         type: "error",
       });
     } finally {
-      setLoading(false); // Hide loader after save
+      setLoading(false);
     }
   };
 
   const handlePasswordSave = async () => {
-    setLoading(true); // Show loader during password save
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token available");
 
-      // Reset modal state before validation
       setModal({ isVisible: false, message: "", type: "" });
 
       console.log(
@@ -204,37 +189,30 @@ const SettingsPage = () => {
         passwordData.currentPassword.length
       );
 
-      // Validate current password length
       if (passwordData.currentPassword.length < 6) {
         setModal({
           isVisible: true,
           message: t("settings.password.minLength"),
           type: "error",
         });
-        setLoading(false); // Stop loading on validation failure
+        setLoading(false);
         return;
       }
 
-      // Validate new password and confirm password match
       if (passwordData.newPassword !== passwordData.confirmPassword) {
         setModal({
           isVisible: true,
           message: t("settings.password.mismatch"),
           type: "error",
         });
-        setLoading(false); // Stop loading on validation failure
+        setLoading(false);
         return;
       }
 
-      // Proceed with API call if all validations pass
-      await axios.put(
-        `http://localhost:5000/api/settings/farmers/${farmerId}/password`,
-        {
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.put(`/settings/farmers/${farmerId}/password`, {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
       setModal({
         isVisible: true,
         message: t("settings.password.updateSuccess"),
@@ -253,7 +231,7 @@ const SettingsPage = () => {
         type: "error",
       });
     } finally {
-      setLoading(false); // Hide loader after all operations
+      setLoading(false);
     }
   };
 
@@ -262,19 +240,15 @@ const SettingsPage = () => {
   };
 
   const handleAddFarmLocation = async (newLocation) => {
-    setLoading(true); // Show loader during add
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token available");
-      const response = await axios.post(
-        "http://localhost:5000/api/farmerlocations",
-        {
-          farmerId,
-          farmName: newLocation.name,
-          farmLocation: newLocation.address,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await apiClient.post("/farmerlocations", {
+        farmerId,
+        farmName: newLocation.name,
+        farmLocation: newLocation.address,
+      });
       setFarmLocations([...farmLocations, response.data.location]);
       setIsFarmLocationModalVisible(false);
       setModal({
@@ -290,7 +264,7 @@ const SettingsPage = () => {
         type: "error",
       });
     } finally {
-      setLoading(false); // Hide loader after add
+      setLoading(false);
     }
   };
 
@@ -305,19 +279,18 @@ const SettingsPage = () => {
   };
 
   const handleUpdateLocation = async (updatedLocation) => {
-    setLoading(true); // Show loader during update
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token available");
       const locationToUpdate = farmLocations[editingLocationIndex];
-      const response = await axios.put(
-        `http://localhost:5000/api/farmerlocations/${locationToUpdate.farmerLocationId}`,
+      const response = await apiClient.put(
+        `/farmerlocations/${locationToUpdate.farmerLocationId}`,
         {
           farmerId,
           farmName: updatedLocation.name,
           farmLocation: updatedLocation.address,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
       const updatedLocations = farmLocations.map((loc, i) =>
         i === editingLocationIndex ? response.data.location : loc
@@ -339,21 +312,18 @@ const SettingsPage = () => {
         type: "error",
       });
     } finally {
-      setLoading(false); // Hide loader after update
+      setLoading(false);
     }
   };
 
   const handleDeleteLocation = async (index) => {
-    setLoading(true); // Show loader during delete
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token available");
       const locationToDelete = farmLocations[index];
-      await axios.delete(
-        `http://localhost:5000/api/farmerlocations/${locationToDelete.farmerLocationId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      await apiClient.delete(
+        `/farmerlocations/${locationToDelete.farmerLocationId}`
       );
       const updatedLocations = farmLocations.filter((_, i) => i !== index);
       setFarmLocations(updatedLocations);
@@ -370,22 +340,17 @@ const SettingsPage = () => {
         type: "error",
       });
     } finally {
-      setLoading(false); // Hide loader after delete
+      setLoading(false);
     }
   };
 
   const handleDeleteAccount = async () => {
-    setLoading(true); // Show loader during account delete
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token available");
       console.log("Attempting to delete account for farmerId:", farmerId);
-      const response = await axios.delete(
-        `http://localhost:5000/api/settings/farmers/${farmerId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await apiClient.delete(`/settings/farmers/${farmerId}`);
       console.log("Delete response:", response.data);
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -406,7 +371,7 @@ const SettingsPage = () => {
         type: "error",
       });
     } finally {
-      setLoading(false); // Hide loader after account delete
+      setLoading(false);
     }
   };
 
