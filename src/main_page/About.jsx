@@ -15,7 +15,7 @@ import {
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import aboutImg from "../assets/aboutImg.png";
-import "../css/AboutPage.css";
+import "../Css/AboutPage.css";
 import vision from "../assets/vision.jpg";
 import { useTranslation } from "react-i18next";
 
