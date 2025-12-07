@@ -1,218 +1,261 @@
-import React from "react";
-
-import CountUp from "react-countup";
-import heroImg from "../assets/heroImg.jpg";
-import { Link } from "react-router-dom";
-
-import "../index.css";
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  Leaf,
+  Users,
+  Truck,
+  TrendingUp,
+  ArrowRight,
+  ChevronRight,
+  CheckCircle,
+  Package,
+  Star,
+} from "lucide-react";
 import Navbar from "./Navbar";
-import Footer from "./Footer";
+import Footer from "./footer";
+import heroImg from "../assets/heroImg.jpg";
+import whyAgrilink from "../assets/whyAgrilink.png";
+import "../css/MainPage.css";
+import { useTranslation } from "react-i18next";
 
-const MainPage = () => {
+export default function MainPage() {
+  const { t } = useTranslation();
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    setAnimate(true);
+  }, []);
+
   return (
     <>
-      {/*Navigation bar and other components*/}
+      <div className="navbar-fixed">
+        <Navbar />
+      </div>
 
-      <Navbar />
+      {/* HERO */}
       <section
-        className="text-success d-flex align-items-center justify-content-center"
+        className="hero-section vh-100 min-vh-80-mob d-flex align-items-center position-relative overflow-hidden"
         style={{
-          height: "100vh",
-          backgroundImage: `url(${heroImg})`,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${heroImg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          position: "relative",
+          backgroundAttachment: "fixed",
         }}
       >
-        {/* Overlay for dimming background */}
-        {/* <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.22)", // light semi-transparent overlay
-            zIndex: 1,
-          }}
-        ></div> */}
-
-        {/* Content layer */}
-        <div className="text-center text-light" style={{ zIndex: 2 }}>
-          <h1 className="display-5 fw-bold" style={{ fontSize: "5rem" }}>
-            Connecting Farmers and Buyers Across Ethiopia
-          </h1>
-          <p className="lead">
-            AgriLink Ethiopia provides a direct marketplace for farmers to sell{" "}
-            <br />
-            their produce and for buyers to access fresh, local products.
-          </p>
-
-          <div className="mt-4">
-            <Link to="/register">
-              <button
-                className="btn text-dark fw-semibold px-4 me-3"
-                style={{
-                  border: "2px solid rgba(0, 128, 0, 0.5)",
-                  borderRadius: "12px",
-                  background: "rgba(255, 255, 255, 0.25)",
-                  backdropFilter: "blur(10px)",
-                  WebkitBackdropFilter: "blur(10px)", // Safari
-                  transition: "all 0.3s ease",
-                  marginRight: "25px",
-                  width: "150px",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = "rgba(255, 255, 255, 0.4)";
-                  e.target.style.border = "2px solid rgba(0, 128, 0, 0.7)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = "rgba(255, 255, 255, 0.25)";
-                  e.target.style.border = "2px solid rgba(0, 128, 0, 0.5)";
-                }}
-              >
-                Start now
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* H O W  I T  W O R K S  S E C T I O N */}
-      <section
-        style={{
-          backgroundColor: "#f9f9f9",
-          padding: "80px 20px",
-          height: "100vh",
-        }}
-      >
-        <div className="text-center mb-5">
-          <h2
-            className="fw-bold text-success display-6"
-            style={{ fontSize: "3rem" }}
+        <div className="container position-relative z-10 px-4 px-md-5">
+          <div
+            className={`text-center text-white ${
+              animate ? "animate-in" : "opacity-0"
+            }`}
           >
-            How AgriLink Ethiopia Works
-          </h2>
-          <p className="lead text-muted">
-            Seamlessly connect farmers with buyers through a trusted digital
-            marketplace.
-          </p>
-        </div>
+            <div className="glass-badge mb-3 mb-md-4">
+              {t("mainpage.hero.badge")}
+            </div>
+            <h1 className="display-4 display-md-3 fw-bold mb-3 mb-md-4 lh-1">
+              {t("mainpage.hero.title")}{" "}
+              <span className="text-gradient d-block">
+                {t("mainpage.hero.titleHighlight")}
+              </span>
+            </h1>
+            <p className="lead mb-4 mb-md-5 max-w-3xl mx-auto opacity-90 fs-6 fs-md-base">
+              {t("mainpage.hero.description")}
+            </p>
 
-        <div className="container">
-          <div className="row justify-content-center g-4">
-            {/* Step 1 */}
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm border-0 text-center p-4 hover-scale">
-                <div className="mb-3 fs-1 text-success">👨‍🌾</div>
-                <h4 className="fw-semibold text-dark mb-2">Farmers Register</h4>
-                <p className="text-muted">
-                  Local farmers create digital profiles and showcase their fresh
-                  produce to potential buyers.
-                </p>
-              </div>
+            <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center mb-4 mb-md-5">
+              <a
+                href="/register"
+                className="btn-modern btn-primary d-flex align-items-center justify-content-center gap-2"
+              >
+                {t("mainpage.hero.btnSell")} <ArrowRight className="icon-sm" />
+              </a>
+              <a
+                href="/login"
+                className="btn-modern btn-secondary d-flex align-items-center justify-content-center gap-2"
+              >
+                {t("navigation.browseProducts")}{" "}
+                <ChevronRight className="icon-sm" />
+              </a>
             </div>
 
-            {/* Step 2 */}
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm border-0 text-center p-4 hover-scale">
-                <div className="mb-3 fs-1 text-warning">🛒</div>
-                <h4 className="fw-semibold text-dark mb-2">Buyers Browse</h4>
-                <p className="text-muted">
-                  Verified buyers explore and select products by type,
-                  freshness, and location.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm border-0 text-center p-4 hover-scale">
-                <div className="mb-3 fs-1 text-info">🚚</div>
-                <h4 className="fw-semibold text-dark mb-2">Secure Delivery</h4>
-                <p className="text-muted">
-                  AgriLink coordinates delivery with care and speed to ensure
-                  satisfaction for everyone.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      {/* G E T  S T A T E D  S E C T I O N  */}
-      <section
-        className="d-flex flex-wrap align-items-center justify-content-between"
-        style={{
-          padding: "80px 20px",
-          backgroundColor: "#fff",
-          height: "100vh",
-        }}
-      >
-        <div className="col-md-6 mb-5 mb-md-0">
-          <h2 className="fw-bold text-success display-5 mb-3">
-            Ready to Make a Difference?
-          </h2>
-          <p className="text-muted lead">
-            Join the AgriLink community and start connecting farmers and buyers
-            today. Whether you're here to sell, purchase, or support local
-            agriculture getting started is simple.
-          </p>
-          <ul className="list-unstyled mt-4">
-            <li className="mb-3">✅ Create your free account</li>
-            <li className="mb-3">🌾 Set up your farmer or buyer profile</li>
-            <li className="mb-3">📦 Begin browsing or listing fresh produce</li>
-          </ul>
-          <Link to="/register" className="btn btn-success btn-lg mt-4">
-            Get Started Now
-          </Link>
-        </div>
-
-        <div className="col-md-5">
-          <div className="row g-4">
-            <div className="col-6">
-              <div className="bg-light border rounded text-center p-4 shadow-sm stat-card">
-                <h3 className="fw-bold text-success mb-1">
-                  <CountUp end={2340} duration={2} />+
-                </h3>
-                <p className="text-muted small">Farmers Registered</p>
-              </div>
-            </div>
-
-            <div className="col-6">
-              <div className="bg-light border rounded text-center p-4 shadow-sm stat-card">
-                <h3 className="fw-bold text-warning mb-1">
-                  <CountUp end={1820} duration={2.2} />+
-                </h3>
-                <p className="text-muted small">Successful Deliveries</p>
-              </div>
-            </div>
-
-            <div className="col-6">
-              <div className="bg-light border rounded text-center p-4 shadow-sm stat-card">
-                <h3 className="fw-bold text-info mb-1">
-                  <CountUp end={350} duration={1.5} />+
-                </h3>
-                <p className="text-muted small">Active Buyers</p>
-              </div>
-            </div>
-
-            <div className="col-6">
-              <div className="bg-light border rounded text-center p-4 shadow-sm stat-card">
-                <h3 className="fw-bold text-primary mb-1">
-                  <CountUp end={98} duration={1.2} />%
-                </h3>
-                <p className="text-muted small">Satisfaction Rate</p>
-              </div>
+            <div className="d-flex flex-wrap justify-content-center gap-3 gap-md-4 text-sm">
+              {[
+                { value: "2,340+", key: "farmers" },
+                { value: "1,820+", key: "deliveries" },
+                { value: "98%", key: "satisfaction" },
+              ].map((stat, i) => (
+                <div
+                  key={i}
+                  className="d-flex align-items-center gap-2 stat-item"
+                >
+                  <div className="dot-sm bg-white"></div>
+                  <span>
+                    <strong>{stat.value}</strong>{" "}
+                    {t(`mainpage.hero.stats.${stat.key}`)}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* F O O T E R */}
+      {/* HOW IT WORKS */}
+      <section className="min-vh-80-mob d-flex align-items-center bg-white py-5 py-md-0">
+        <div className="container px-4 px-md-5">
+          <div className="text-center mb-5">
+            <h2 className="display-5 fw-bold text-dark mb-3">
+              {t("mainpage.how.title")}
+            </h2>
+            <p className="lead text-muted">{t("mainpage.how.subtitle")}</p>
+          </div>
+          <div className="row g-4 g-md-5 justify-content-center">
+            {[
+              {
+                icon: Users,
+                title: "mainpage.how.steps.profile.title",
+                desc: "mainpage.how.steps.profile.desc",
+              },
+              {
+                icon: TrendingUp,
+                title: "mainpage.how.steps.list.title",
+                desc: "mainpage.how.steps.list.desc",
+              },
+              {
+                icon: Truck,
+                title: "mainpage.how.steps.delivery.title",
+                desc: "mainpage.how.steps.delivery.desc",
+              },
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div key={i} className="col-12 col-md-4">
+                  <div className="step-card p-4 p-md-5 text-center h-100 d-flex flex-column justify-content-center">
+                    <div className="icon-circle mb-4 mx-auto">
+                      <Icon size={36} className="text-white" />
+                    </div>
+                    <h5 className="fw-bold mb-3">{t(item.title)}</h5>
+                    <p className="text-muted flex-grow-1">{t(item.desc)}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* WHY CHOOSE */}
+      <section className="min-vh-80-mob d-flex align-items-center bg-light py-5 py-md-0">
+        <div className="container px-4 px-md-5">
+          <div className="row align-items-center g-4 g-md-5">
+            <div className="col-lg-6 order-2 order-lg-1">
+              <h2 className="display-5 fw-bold mb-4 mb-md-5">
+                {t("mainpage.why.title")}
+              </h2>
+              <div className="row g-3 g-md-4">
+                {[
+                  "direct",
+                  "pricing",
+                  "quality",
+                  "logistics",
+                  "payments",
+                  "community",
+                ].map((key, i) => {
+                  const icons = [
+                    Users,
+                    TrendingUp,
+                    CheckCircle,
+                    Truck,
+                    Package,
+                    Leaf,
+                  ];
+                  const Icon = icons[i];
+                  return (
+                    <div key={i} className="col-12 col-md-6">
+                      <div className="feature-card p-3 p-md-4 rounded-3 shadow-sm h-100 d-flex gap-3">
+                        <div className="icon-box flex-shrink-0">
+                          <Icon size={28} className="text-white" />
+                        </div>
+                        <div>
+                          <h6 className="fw-bold mb-1">
+                            {t(`mainpage.why.items.${key}.title`)}
+                          </h6>
+                          <p className="text-muted small mb-0">
+                            {t(`mainpage.why.items.${key}.desc`)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="col-lg-6 order-1 order-lg-2 mb-4 mb-lg-0">
+              <div className="hero-image-box rounded-3 overflow-hidden shadow-lg">
+                <img
+                  src={whyAgrilink}
+                  alt={t("mainpage.why.imageAlt")}
+                  className="w-100 h-100 object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* IMPACT */}
+      <section className="min-vh-80-mob d-flex align-items-center bg-white py-5 py-md-0">
+        <div className="container px-4 px-md-5">
+          <div className="text-center mb-5">
+            <h2 className="display-5 fw-bold mb-3">
+              {t("mainpage.impact.title")}
+            </h2>
+            <p className="lead text-muted">{t("mainpage.impact.subtitle")}</p>
+          </div>
+          <div className="row g-3 g-md-4 justify-content-center">
+            {[
+              { value: "2,340+", key: "farmers", icon: Users },
+              { value: "1,820+", key: "deliveries", icon: Truck },
+              { value: "350+", key: "buyers", icon: Package },
+              { value: "98%", key: "satisfaction", icon: Star },
+            ].map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <div key={i} className="col-6 col-md-3">
+                  <div className="impact-card text-center p-4 p-md-5 rounded-3 shadow-sm h-100 d-flex flex-column justify-content-center">
+                    <div className="icon-circle-lg mb-3 mx-auto">
+                      <Icon size={40} className="text-white" />
+                    </div>
+                    <h3 className="fw-bold text-success mb-1">{stat.value}</h3>
+                    <p className="text-muted small">
+                      {t(`mainpage.impact.stats.${stat.key}`)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="min-vh-80-mob d-flex align-items-center text-white bg-success position-relative overflow-hidden py-5 py-md-0">
+        <div className="container text-center position-relative z-10 px-4 px-md-5">
+          <h2 className="display-5 fw-bold mb-4">{t("mainpage.cta.title")}</h2>
+          <p className="lead mb-4 mb-md-5 opacity-90">
+            {t("mainpage.cta.subtitle")}
+          </p>
+          <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+            <a href="/register" className="btn-modern btn-light">
+              {t("mainpage.cta.btnFarmer")}
+            </a>
+            <a href="/login" className="btn-modern btn-outline-light">
+              {t("mainpage.cta.btnBuyer")} <ChevronRight className="icon-sm" />
+            </a>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </>
   );
-};
-
-export default MainPage;
+}

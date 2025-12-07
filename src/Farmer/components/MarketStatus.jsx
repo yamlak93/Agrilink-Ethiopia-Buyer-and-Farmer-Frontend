@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Loader from "../../assets/Agriculture Loader.webm";
 import { useTranslation } from "react-i18next";
-import apiClient from "../../api/api"; // Import the api.js client
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import apiClient from "../../api/api";
+import { useNavigate } from "react-router-dom";
 
 const MarketStatus = () => {
   const { t } = useTranslation();
@@ -107,7 +107,15 @@ const MarketStatus = () => {
                   </p>
                   <p className="card-text">
                     <strong>{t("tipsPage.marketStatus.updated")}:</strong>{" "}
-                    {item.date}
+                    {new Date(item.date).toLocaleString("en-ET", {
+                      timeZone: "Africa/Addis_Ababa",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
                   </p>
                 </div>
               </div>

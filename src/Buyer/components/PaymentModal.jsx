@@ -13,6 +13,7 @@ const PaymentModal = ({
   quantity,
   unit,
   location,
+  cartItems, // For cart page
 }) => {
   if (!show) return null;
 
@@ -62,19 +63,51 @@ const PaymentModal = ({
           </div>
           <div className="modal-body p-4">
             <h6 className="text-primary fw-bold mb-3">Order Summary</h6>
+            
+            {/* Show cart items if available */}
+            {cartItems && cartItems.length > 0 && (
+              <div className="mb-3">
+                <h6 className="fw-bold mb-2">Items ({cartItems.length})</h6>
+                <ul className="list-group mb-3">
+                  {cartItems.map((item) => (
+                    <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <div className="fw-bold">{item.name}</div>
+                        <small className="text-muted">
+                          {item.quantity} {item.unit} × {item.price.toLocaleString()} ETB
+                        </small>
+                      </div>
+                      <span className="fw-bold">
+                        {(item.quantity * item.price).toLocaleString()} ETB
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {/* Summary totals */}
             <ul className="list-group mb-3">
-              <li className="list-group-item d-flex justify-content-between">
-                <span>
-                  Base Price ({quantity} {unit})
-                </span>
-                <span>{basePrice.toLocaleString()} ETB</span>
-              </li>
+              {!cartItems && quantity && unit && (
+                <li className="list-group-item d-flex justify-content-between">
+                  <span>
+                    Base Price ({quantity} {unit})
+                  </span>
+                  <span>{basePrice.toLocaleString()} ETB</span>
+                </li>
+              )}
+              {cartItems && (
+                <li className="list-group-item d-flex justify-content-between">
+                  <span>Base Price</span>
+                  <span>{basePrice.toLocaleString()} ETB</span>
+                </li>
+              )}
               <li className="list-group-item d-flex justify-content-between">
                 <span>Tax (15%)</span>
                 <span>{tax.toLocaleString()} ETB</span>
               </li>
               <li className="list-group-item d-flex justify-content-between">
-                <span>Delivery Fee (2%)</span>
+                <span>Delivery Fee (10%)</span>
                 <span>{deliveryFee.toLocaleString()} ETB</span>
               </li>
               <li className="list-group-item d-flex justify-content-between fw-bold">
@@ -82,20 +115,11 @@ const PaymentModal = ({
                 <span>{totalPrice.toLocaleString()} ETB</span>
               </li>
             </ul>
-            <div className="form-check mb-3">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                id="deliveryCheckbox"
-                checked={needDelivery}
-                onChange={(e) => setNeedDelivery(e.target.checked)}
-              />
-              <label
-                className="form-check-label text-dark"
-                htmlFor="deliveryCheckbox"
-              >
-                I need delivery to {location}
-              </label>
+            <div className="alert alert-info mb-3">
+              <small>
+                <i className="bi bi-info-circle me-2"></i>
+                Delivery fee (10%) is included in all orders to {location}
+              </small>
             </div>
             <button
               className="btn btn-success w-100"

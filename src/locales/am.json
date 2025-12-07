@@ -31,7 +31,9 @@
     "codeSentToEmail": "ኮድ ወደ ኢሜይልዎ ተልኳል",
     "codeSent": "የማረጋገጫ ኮድ በስኬት ተልኳል።",
     "codeVerified": "ኮድ በስኬት ተረጋግጧል።",
-    "passwordReset": "የይለፍ ቃል በስኬት ተቀይሯል።"
+    "passwordReset": "የይለፍ ቃል በስኬት ተቀይሯል።",
+    "loggingIn": "በመግባት ላይ...",
+    "registering": "በመመዝገብ ላይ..."
   },
   "navigation": {
     "home": "መነሻ",
@@ -47,7 +49,8 @@
     "transactions": "ግብይቶች",
     "settings": "ቅንብሮች",
     "profile": "መገለጫ",
-    "admin": "አስተዳዳሪ ፓነል"
+    "admin": "አስተዳዳሪ ፓነል",
+    "browseProducts": "ምርቶችን ይመልከቱ"
   },
   "dashboard": {
     "welcome": "እንኳን ደህና መጡ፣ {{userName}}",
@@ -120,8 +123,10 @@
     "farmer": "አርሶ",
     "buyer": "ገዢ",
     "status": "ሁኔታ",
+    "all": "ሁሉም ትእዛዞች",
     "pending": "በመጠባበቅ ላይ",
     "processing": "በሂደት ላይ",
+    "in transit": "በመንገድ ላይ",
     "shipped": "ተላከ",
     "delivered": "ተቀብሏል",
     "cancelled": "ተሰርዟል",
@@ -132,7 +137,9 @@
     "cancelOrder": "ትእዛዝ ይሰርዙ",
     "orderDetail": "የትእዛዝ ዝርዝር",
     "orderSummary": "የትዕዛዝ ማጠቃለያ",
-    "reopenOrder": "ትእዛዝ ዳግም ክፈት"
+    "reopenOrder": "ትእዛዝ ዳግም ክፈት",
+    "cancelWarning": "ይህ ትእዛዝ ይሰርዣል። እርግጠኛ ኖት?",
+    "enterReason": "የተሰረዘበት ምክንያት ያስገቡ"
 
   },
   "delivery": {
@@ -246,17 +253,232 @@
     "messageSent": "መልእክት በተሳካ ሁኔታ ተላከ",
     "messageFailed": "መልእክት ላክ አልተቻለም"
   },
-  "admin": {
-    "title": "አስተዳዳሪ ፓነል",
-    "manageUsers": "ተጠቃሚዎችን ያስተዳድሩ",
-    "manageFarmers": "አርሶችን ያስተዳድሩ",
-    "manageBuyers": "ገዢዎችን ያስተዳድሩ",
-    "manageProducts": "ምርቶችን ያስተዳድሩ",
-    "manageOrders": "ትእዛዞችን ያስተዳድሩ",
-    "managePayments": "ክፍያዎችን ያስተዳድሩ",
-    "manageTips": "የእርሻ ምክሮችን ያስተዳድሩ",
-    "systemSettings": "የሲስተም ቅንብሮች",
-    "reports": "ሪፖርቶች"
+"buyerDashboard": {
+  "welcome": "እንኳን በደህና መጡ",
+  "overview": "የግዢ እንቅስቃሴዎን አጠቃላይ እይታ",
+  "browseProducts": "ምርቶችን ይመልከቱ",
+  "totalOrders": "ጠቅላላ ትዕዛዞች",
+  "pendingDeliveries": "በመጠባበቅ ላይ ያሉ ማድረሻዎች",
+  "completedDeliveries": "የተጠናቀቁ ማድረሻዎች",
+  "pendingDesc": "በ2-3 ቀናት ውስጥ ይጠበቃል",
+  "orderedOn": "የትዕዛዝ ቀን",
+  "orderDetails": "የትዕዛዝ ዝርዝር",
+  "recentOrders": "የቅርብ ጊዜ ትዕዛዞች",
+  "recentProducts": "የቅርብ ጊዜ ምርቶች",
+  "viewAllOrders": "ሁሉንም ትዕዛዞች ይመልከቱ",
+  "freshFromFarmers": "አዳዲስ ምርቶች ከአርሶአደሮች",
+  "noOrders": "ምንም ትዕዛዞች የሉም"
+},
+  "browseProducts": {
+    "title": "ምርቶችን ይመልከቱ",
+    "subtitle": "አዳዲስ ምርቶችን ቀጥታ ከገበሬዎች ያግኙ",
+    "searchLabel": "ፈልግ",
+    "searchPlaceholder": "ስም፣ አርሶአደሮች፣ ቦታ...",
+    "categoryLabel": "ምድብ",
+    "priceRange": "የዋጋ መጠን",
+    "resetFilters": "ነፃ አድርግ",
+    "loading": "በመጫን ላይ...",
+    "noProductsFound": "ምርቶች አልተገኙም።",
+    "showAll": "ሁሉንም አሳይ"
+  },
+  "productDetails": {
+    "backToBrowse": "ወደ ምርቶች መመልከቻ ተመለስ",
+    "loading": "በመጫን ላይ...",
+    "errorLoad": "ምርቱን መጫን አልተሳካም",
+    "farmer": "ገበሬ",
+    "available": "የሚገኝ",
+    "quantity": "ብዛት",
+    "total": "ጠቅላላ",
+    "tax": "ግብር",
+    "delivery": "መላኪያ",
+    "addToCart": "ወደ ካርት አክል",
+    "adding": "በመጨመር ላይ...",
+    "added": "ተጨምሯል!",
+    "buyNow": "አሁን ግዛ",
+    "moreFromFarmer": "ከዚህ ገበሬ የተጨማሪ ምርቶች",
+    "reviewsTitle": "የደንበኞች ግምገማዎች",
+    "writeReview": "ግምገማ ይፃፉ",
+    "rating": "ደረጃ",
+    "yourReview": "የእርስዎ ግምገማ",
+    "reviewPlaceholder": "የተሞክሮዎን ክፈት...",
+    "submitting": "በመላክ ላይ...",
+    "submitReview": "ግምገማ ያስረክቡ",
+    "noReviews": "ግምገማዎች አልተገኙም። የመጀመሪያው ይሁኑ!",
+    "deleteReview": "ግምገማ ሰርዝ",
+    "deliveryAddress": "የመላኪያ አድራሻ",
+    "whereDeliver": "ወዴት እንዲደርስ እንፈልጋለን?",
+    "addressPlaceholder": "ለምሳሌ፡ ቦሌ፣ በመድሃኔአለም ቤተክርስቲያን አቅራቢያ፣ ቤት #123፣ አዲስ አበባ",
+    "addressNote": "ይህ አድራሻ ለመላኪያ ይጠቀማል። በኋላም መቀየር ይችላሉ።",
+    "addressRequired": "እባክዎን የመላኪያ አድራሻዎን ያስገቡ",
+    "paymentFailed": "የክፍያ ሂደቱ መጀመር አልተቻለም",
+    "networkError": "የኔትዎርክ ችግኝ። እባክዎ ደግመው ይሞክሩ።",
+    "reviewFailed": "ግምገማ መላክ አልተሳካም",
+    "deleteFailed": "ግምገማ መሰረዝ አልተሳካም",
+    "processing": "በመስራት ላይ...",
+    "proceedPayment": "ወደ ክፍያ ቀጥል",
+    "confirmDelete": "ግምገማዎን መሰረዝ እንደሚፈልጉ ያረጋግጡ። ይህ ተግባር መመለስ አይቻልም።"
+  },
+  "buyerOrders": {
+    "title": "የእኔ ትዕዛዞች",
+    "subtitle": "ግዢዎችዎን ይከታተሉና ያቀናብሩ",
+    "historyTitle": "የትዕዛዝ ታሪክ",
+    "searchPlaceholder": "በምርት፣ በትዕዛዝ ID፣ በገበሬ... ይፈልጉ",
+    "loading": "በመጫን ላይ...",
+    "loadingText": "ትዕዛዞች በመጫን ላይ...",
+    "noOrders": "ምንም ትዕዛዞች አልተገኙም።",
+    "cancelSuccess": "ትዕዛዙ {{orderId}} ተሰርዟል። የተመላሽ ክፍያ ተጀምሯል።",
+    "cancelFailed": "ትዕዛዝ መሰረዝ አልተሳካም።",
+     "card": {
+    "orderId": "ትዕዛዝ #{{id}}",
+    "moreItems": "+ ተጨማሪ {{count}}",
+    "farmer": "ገበሬ",
+    "viewDetails": "ዝርዝር ይመልከቱ"
+  },
+    "tabs": {
+      "all": "ሁሉም ትዕዛዞች",
+      "pending": "በመጠባበቅ ላይ",
+      "processing": "በሂደት ላይ",
+      "in_transit": "በመጓጓዣ ላይ",
+      "delivered": "ተደርሷል",
+      "cancelled": "ተሰርዟል"
+    },
+    "modal": {
+    "title": "የትዕዛዝ ዝርዝር",
+    "itemsTitle": "የተዘዙ ዕቃዎች",
+    "orderDate": "የትዕዛዝ ቀን",
+    "expectedDelivery": "የሚጠበቀው መቅረብ",
+    "estimatedDelivery": "ትዕዛዙ ካሰገባ 2 ቀን በኋላ",
+    "farmer": "ገበሬ",
+    "totalAmount": "ጠቅላላ መጠን",
+    "cancelOrder": "ትዕዛዝ ሰርዝ"
+  }
+  },
+  "buyerProfile": {
+    "pageTitle": "የመለያ ቅንብሮች",
+    "pageSubtitle": "የመለያዎን ቅንብሮች እና ምርጫዎች ያቀናብሩ",
+    "tabs": {
+      "profile": "መገለጫ",
+      "password": "የይለፍ ቃል",
+      "account": "መለያ"
+    },
+    "profile": {
+      "title": "የመገለጫ መረጃ",
+      "loading": "መገለጫ በመጫን ላይ...",
+      "name": "ሙሉ ስም",
+      "email": "ኢሜይል",
+      "phone": "ስልክ ቁጥር",
+      "address": "አድራሻ",
+      "success": "መገለጫ በተሳካ ሁኔታ ተዘምኗል!",
+      "updateFailed": "መገለጫ ማዘመን አልተሳካም።"
+    },
+    "password": {
+      "title": "የይለፍ ቃል ቀይር",
+      "current": "የአሁኑ የይለፍ ቃል",
+      "new": "አዲስ የይለፍ ቃል",
+      "confirm": "አዲሱን የይለፍ ቃል ያረጋግጡ",
+      "update": "የይለፍ ቃል አዘምን",
+      "success": "የይለፍ ቃል ተዘምኗል!",
+      "updateFailed": "የይለፍ ቃል ማዘመን አልተሳካም።",
+      "mismatch": "የይለፍ ቃሎቹ አይመሳሰሉም።",
+      "minLength": "የይለፍ ቃል 6 ቁምፊ ወይም ከዚያ በላይ መሆን አለበት።"
+    },
+    "danger": {
+      "title": "አደጋ ቦታ",
+      "warning": "መለያዎን ካስወገዱ በኋላ ወደ ኋላ መመለስ አይቻልም። እባክዎ ያረጋግጡ።",
+      "delete": "መለያ አጥፋ",
+      "deleted": "መለያው ተሰርዟል። በመጓጓት ላይ...",
+      "deleteFailed": "መለያ ማጥፋት አልተሳካም።",
+      "confirmTitle": "ማጥፋት ያረጋግጡ",
+      "confirmQuestion": "እርግጠኛ ነዎት?",
+      "confirmWarning": "ይህ ተግባር ቋሚ ነው።"
+    },
+    "errors": {
+      "loadFailed": "የመገለጫ መረጃ መጫን አልተሳካም።"
+    }
+  },
+  "cart": {
+  "header": {
+    "title": "የግዢ ጋሪ",
+    "clearCart": "ጋሪን አፅዳ"
+  },
+  "item": {
+    "farmer": "ገበሬ"
+  },
+  "empty": {
+    "title": "ጋሪዎ ባዶ ነው",
+    "subtitle": "ለመጀመር አንዳንድ ተዳፋት ምርቶችን ያክሉ!",
+    "shopNow": "ወደ ገበያ ተመለስ"
+  },
+  "summary": {
+    "title": "የትእዛዝ ማጠቃለያ",
+    "subtotal": "ድምር",
+    "tax": "ታክስ (15%)",
+    "delivery": "የመላኪያ ክፍያ (10%)",
+    "total": "ጠቅላላ",
+    "payNow": "አሁን ክፍያ አድርግ",
+    "continueShopping": "መገበያየት ቀጥል",
+    "secureCheckout": "የተጠበቀ ክፍያ በ Chapa የተቀረበ"
+  },
+  "modal": {
+    "title": "የመላኪያ አድራሻ",
+    "label": "ትእዛዝዎን የምንያዝበት አድራሻ ያስገቡ",
+    "placeholder": "ለምሳሌ፡ ቦሌ፣ መድኃኔዓለም ቤተክርስቲያን አቅራቢያ፣ ቤት #123፣ አዲስ አበባ",
+    "note": "ይህ አድራሻ በጋሪዎ ያሉ ሁሉም እቃዎች ላይ ይጠቀማል።",
+    "addressError": "እባክዎ የመላኪያ አድራሻ ያስገቡ",
+    "proceed": "ወደ ክፍያ ቀጥል"
+  },
+  "alerts": {
+    "empty": "ጋሪዎ ባዶ ነው!",
+    "initFailed": "ክፍያ መጀመር አልተሳካም",
+    "networkError": "የኔትዎርክ ችግር ተከስቷል። እባክዎ ደግመው ይሞክሩ።"
+  }
+},
+"paymentResult": {
+    "status": {
+      "verifying": "ክፍያ በመረጋገጥ ላይ...",
+      "success": "ክፍያዎ ተሳክቷል! ትዕዛዝዎ ተረጋግጧል።"
+    },
+    "loading": {
+      "title": "ክፍያዎን በመረጋገጥ ላይ...",
+      "subtitle": "እባክዎ ይህን ገፅ አትዝጉ፣ አታዘምኑም።",
+      "connecting": "ከደህንነት የተጠበቀ ጌትዌይ ጋር በመገናኘት ላይ"
+    },
+    "failure": {
+      "title": "የክፍያ ችግኝ"
+    },
+    "labels": {
+      "orderId": "የትዕዛዝ መለያ"
+    },
+    "buttons": {
+      "viewOrders": "ትዕዛዞቼን ይመልከቱ",
+      "contactSupport": "ድጋፍ ያነጋግሩ",
+      "continueShopping": "ግብዣ ይቀጥሉ",
+      "downloadReceipt": "የPDF ደረሰኝ ይውሰዱ"
+    },
+    "errors": {
+      "invalidLink": "የተሳሳተ የክፍያ ሊንክ። የግብዣ ማመልከቻ ይጎድላል።",
+      "missingCart": "የቅርጫት ውሂብ የለም።",
+      "invalidCart": "የቅርጫት ውሂብ ትክክል አይደለም።",
+      "notFound": "ትዕዛዙ አልተገኘም። እንደገና በ1 ደቂቃ ውስጥ ይታዘምኑ።",
+      "loadFailed": "ደረሰኝ መጫን አልተቻለም። ተቀምጦ ከተከፈለ ግዜ ድጋፍ ያነጋግሩ።"
+    },
+    "receipt": {
+      "slogan": "ተኩስ ከገበሬ ወደ ማዕድ",
+      "contact": "አዲስ አበባ፣ ኢትዮጵያ | support@agrilink.et | +251 911 223 344",
+      "orderId": "የትዕዛዝ መለያ",
+      "transactionId": "የግብዣ መለያ",
+      "dateTime": "ቀን እና ሰዓት",
+      "purchaseSummary": "የግብዣ ማጠቃለያ",
+      "per": "በ",
+      "from": "ከ",
+      "perUnit": "በአንድ ክፍል",
+      "subtotal": "ንዑስ ድመት",
+      "tax": "ታክስ (15% VAT)",
+      "delivery": "የመላኪያ ክፍያ (10%)",
+      "totalPaid": "አጠቃላይ የተከፈለ",
+      "thankYou": "እናመሰግናለን!",
+      "deliveryTime": "ትዕዛዝዎ በ2 ቀን ውስጥ ይመድረልዎታል።"
+    }
   },
   "settings": {
     "accountSettings": {
@@ -283,7 +505,12 @@
       "farmAddress": "የእርሻ አድራሻ",
       "updateSuccess": "መግለጫ በተሳካ ሁኔታ ተዘምኗል!",
       "updateError": "መግለጫ ማዘመን አልተሳካም። እባኮትን ድጋሚ ይሞክሩ።",
-      "delete": "የእርሻ ቦታ ይሰርዙ"
+      "delete": "የእርሻ ቦታ ይሰርዙ",
+      "editBank": "የባንክ አካውንት አስተካክል",
+      "setDefault": "ዋና አካውንት አድርግ",
+      "bankDetails": "የባንክ መረጃ",
+      "default": "ዋና"
+
     },
     "password": {
       "title": "የይለፍ ቃል ቀይር",
@@ -328,6 +555,7 @@
   },
   "errors": {
     "required": "ይህ መስክ ያስፈልጋል",
+    "roleRequired": "ሚና ያስፈልጋል",
     "invalidEmail": "ትክክለኛ ኢሜይል አድራሻ ያስገቡ",
     "passwordMismatch": "የይለፍ ቃል አይዛመዱም",
     "networkError": "የአውታረመረብ ችግር፣ እባክዎ ዳግም ይሞክሩ",
@@ -346,7 +574,10 @@
     "confirmPasswordRequired": "የይለፍ ቃል ማረጋገጫ ያስፈልጋል።",
     "passwordMin6": "የይለፍ ቃል ቢያንስ 6 ቁጥሮች መሆን አለበት።",
     "passwordResetFailed": "የይለፍ ቃል መቀየር አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
-    "invalidPhone": "የስልክ ቁጥር በትክክል 10 አሃዞች መሆን አለበት።"  
+    "invalidPhone": "የስልክ ቁጥር በትክክል 10 አሃዞች መሆን አለበት።" ,
+    "accountLength": "መለያው የ {{expected}} አሃዝ መሆን አለበት (እርሶ {{actual}} አስገብተዋል)",
+    "bankLoadFailed": "ባንኮችን መጫን አልተሳካም። እባክዎ ግንኙነትዎን ያረጋግጡ እና ደግመው ይሞክሩ።"
+ 
   },
   "confirmations": {
     "title": "አረጋግጥ",
@@ -364,7 +595,7 @@
     "cancel": "ሰርዝ",
     "submit": "አስገባ",
     "save": "አስቀምጥ",
-    "edit": "አርትዕ",
+    "edit": "አስተካክል",
     "delete": "ሰርዝ",
     "close": "ዝጋ",
     "loading": "በመጫን ላይ...",
@@ -404,7 +635,14 @@
   "success": "ተሳክቷል",
   "error": "ስህተት",
   "updatedAt": "ተዘምኗል",
-  "role": "ሚና"
+  "role": "ሚና",
+  "update": "አዘምን",
+  "verified": "የተረጋገጠ",
+  "pending": "በመጠበቅ ላይ",
+  "products": "ምርቶች",
+  "price": "ዋጋ",
+  "processing": "በሂደት ላይ...",
+  "deleting": "በማስወገድ ላይ..."
   },
   "roles": {
     "farmer": "አርሶ አደር" ,
@@ -477,7 +715,346 @@
     "fetchError": "የአየር ንብረት መረጃ ማግኘት አልተቻለም",
     "unit": "°C",
     "iconAlt": "የአየር ንብረት አዶ"
+  },
+   "farmer": {
+    "farmName":"የእርሻ ቦታ ስም",
+    "farmLocation":"የእርሻ ቦታ አድራሻ",
+    "farmNamePlaceholder":"የእርሻ ቦታዎን ስም ያስገቡ",
+    "farmLocationPlaceholder":"የእርሻ ቦታዎን አድራሻ ያስገቡ",
+    "bank": "ባንክ",
+    "selectBank": "— ባንክዎን ይምረጡ —",
+    "accountNumber": "የመለያ ቁጥር",
+    "accountNumberPlaceholder": "ቁጥሮችን ብቻ ያስገቡ",
+    "accountName": "የመለያ ባለቤት ስም",
+    "accountNamePlaceholder": "በባንክ መለያው ላይ እንደሚገኝ ሙሉ ስም ያስገቡ",
+    "accountLengthHint": "ትክክለኛው {{length}} አሃዝ መሆን አለበት",
+    "digits": "አሃዞች"
+
+
+  },
+  "mainpage": {
+    "navbar": {
+      "brand": "አግሪሊንክ ኢትዮጵያ",
+      "login": "መግቢያ",
+      "language": "ቋንቋ",
+      "links": {
+        "home": "መነሻ",
+        "about": "ስለ እኛ",
+        "contact": "ያግኙን"
+      }
+    },
+    "hero": {
+      "badge": "የኢትዮጵያን ግብርና ማህበረሰብ በመገናኘት ላይ",
+      "title": "ትኩስ ምርት,",
+      "titleHighlight": "ቀጥታ ከእርሻ",
+      "description": "አግሪሊንክ ኢትዮጵያ ገበሬዎችን እና ገዢዎችን በቀጥታ በመገናኘት መካከለኛዎችን ያስወግዳል እና ተፈጥሯዊ ዋጋ ያረጋግጣል።",
+      "btnSell": "ሽያጭ ጀምር",
+      "btnBrowse": "ምርቶችን ይቃኙ",
+      "stats": {
+        "farmers": "ንቁ ገበሬዎች",
+        "deliveries": "የተሳካ መላኪያ",
+        "satisfaction": "የተደሰተ አገልግሎት"
+      }
+    },
+    "how": {
+      "title": "አግሪሊንክ እንዴት ይሰራል?",
+      "subtitle": "አምራቾችን ከገዢዎች ጋር ለማገናኘት ቀላል 3 ደረጃዎች",
+      "steps": {
+        "profile": {
+          "title": "መገለጫ ፍጠር",
+          "desc": "ይመዝገቡ እና የገበሬ ወይም የገዢ ፕሮፋይልዎን ያቀናብሩ።"
+        },
+        "list": {
+          "title": "ዝርዝር ያድርጉ ወይም ይቃኙ",
+          "desc": "ገበሬዎች ምርት ይዘርዝራሉ። ገዢዎች በቦታ እና በጥራት ይፈልጋሉ።"
+        },
+        "delivery": {
+          "title": "ደህንነቱ የተጠበቀ መላኪያ",
+          "desc": "ፈጣን እና የሚከታተለው መላኪያ በደህንነት የተጠበቀ ክፍያ ጋር።"
+        }
+      }
+    },
+    "why": {
+      "title": "ገበሬዎች እና ገዢዎች አግሪሊንክን ለምን ይመርጣሉ?",
+      "imageAlt": "አግሪሊንክ በተግባር",
+      "items": {
+        "direct": {
+          "title": "ቀጥታ ግንኙነት",
+          "desc": "መካከለኛ የለም — ገበሬዎች በቀጥታ ለገዢዎች ይሸጣሉ።"
+        },
+        "pricing": {
+          "title": "ተፈጥሯዊ ዋጋ",
+          "desc": "ግልጽ ዋጋ መዋቅር ገበሬዎች የበለጠ እንዲያገኙ ያግዛል።"
+        },
+        "quality": {
+          "title": "የጥራት ማረጋገጫ",
+          "desc": "የተረጋገጡ ዝርዝሮች እና የገዢ እሴቶች።"
+        },
+        "logistics": {
+          "title": "ቀላል ሎጂስቲክስ",
+          "desc": "በቅርብ ጊዜ ቅኝት እና የተደራጀ መላኪያ።"
+        },
+        "payments": {
+          "title": "ደህንነቱ የተጠበቀ ክፍያ",
+          "desc": "ደህንነቱ የተጠበቀ የግብዣ ሂደት እና በፈጣን ክፍያ።"
+        },
+        "community": {
+          "title": "የማህበረሰብ እድገት",
+          "desc": "በኢትዮጵያ ያሉ 2,000+ ገበሬዎችና ገዢዎች ይቀላቀሉ።"
+        }
+      }
+    },
+    "impact": {
+      "title": "ተፅዕኖአችን በቁጥር",
+      "subtitle": "የኢትዮጵያን ግብርና ገበያ በመስፋፋት ላይ",
+      "stats": {
+        "farmers": "የተመዘገቡ ገበሬዎች",
+        "deliveries": "የተሳካ መላኪያ",
+        "buyers": "ንቁ ገዢዎች",
+        "satisfaction": "የደስታ መጠን"
+      }
+    },
+    "cta": {
+      "title": "ግብርናን ለመቀየር ዝግጁ ነዎት?",
+      "subtitle": "በአግሪሊንክ የሚታወቁትን ሺዎች ገበሬዎችና ገዢዎች ይቀላቀሉ።",
+      "btnFarmer": "እንደ ገበሬ ይቀላቀሉ",
+      "btnBuyer": "እንደ ገዢ ይቃኙ"
+    }
+  },
+  "about": {
+  "hero": {
+    "badge": "ስለ አግሪሊንክ ኢትዮጵያ",
+    "title": "ገበሬዎችን ማበረታታት፣",
+    "titleHighlight": "ግብርናን በቴክኖሎጂ መለወጥ",
+    "description": "አግሪሊንክ የኢትዮጵያን ገበሬዎች ቴክኖሎጂ፣ግልጽነት እና ወቅታዊ ግንዛቤዎችን በመጠቀም በቀጥታ ከገበያ ጋር ያገናኛል።",
+    "btn": "አላማችንን ይመልከቱ"
+  },
+  "vision": {
+    "title": "አላማችን",
+    "mission": "አምራቾችን፣ ገዥዎችን የሚያገናኝ የተማከለ ዲጂታል መድረክ በማቅረብ የኢትዮጵያን ገበሬዎች ለማብቃት፣ የምርት ዝርዝር እና የገበያ ቦታ ግብይቶችን ያመቻቻል; የመላኪያ ቅንጅትን እና ዲጂታል ክፍያዎችን ያሻሽላል; እና ተደራሽ፣ ባለብዙ ቋንቋ የግብርና እውቀትን ያቀርባል - ግልጽነትን፣ ቅልጥፍናን እና በግብርናው ዘርፍ ቀጣይነት ያለው እድገትን ማሳደግ።",
+    "description": "ደላሎችን እናስወግዳለን፣ ብክነትን እንቀንሳለን፣ እና እያንዳንዱ ገበሬ በተገናኘ ስነ-ምህዳር ውስጥ እንዲዳብር የእውነተኛ ጊዜ ግንዛቤዎችን እናቀርባለን።",
+    "imageAlt": "አግሪሊንክ በተግባር"
+  },
+  "features": {
+    "title": "ቁልፍ ገጽታዎች",
+    "subtitle": "ገበሬዎችና ገዢዎች ሚያስፈልጋቸው ሁሉ በአንድ መድረክ",
+    "items": {
+      "marketplace": {
+        "title": "ቀጥታ ገበያ",
+        "desc": "ገበሬዎች በቀጥታ ለገዢዎች ይሽያሉ ደላላ የለም።"
+      },
+      "tracking": {
+        "title": "በቅርብ ጊዜ መከታተያ",
+        "desc": "እቃውን ከገበሬ እስከ ገበያ ተከታትለው ይመለከቱ።"
+      },
+      "alerts": {
+        "title": "ማስጠንቀቂያዎች",
+        "desc": "የአየር ንብረት፣ ትንበያ እና የገበያ ዋጋ ማሳወቂያ።"
+      },
+      "payments": {
+        "title": "የተረጋገጠ ክፍያ",
+        "desc": "በChapa ፈጣን ክፍያ።"
+      },
+      "multilingual": {
+        "title": "ብዙ ቋንቋ",
+        "desc": "አማርኛ፣ ኦሮምኛ፣ እንግሊዝኛ ቋንቋዎችን ይደግፋል።"
+      },
+      "mobile": {
+        "title": "ሞባይል ቀዳሚ",
+        "desc": "በገጠር አካባቢ ከመስመር ውጭም ይሰራል።"
+      }
+    }
+  },
+  "impact": {
+    "title": "ለምን ጠቃሚ ነው?",
+    "subtitle": "በገበሬዎች እና በማህበረሰቦች ላይ የሚታይ ተፅዕኖ",
+    "stats": {
+      "waste": "ብክነት ቅነሳ",
+      "earnings": "የገቢ መጨመር",
+      "users": "ንቁ ተጠቃሚዎች"
+    }
   }
+},
+"contactUs": {
+  "hero": {
+    "badge": "ያግኙን",
+    "title": "በእርግጥ ልንሰማዎት",
+    "titleHighlight": "እንፈልጋለን",
+    "description": "ጥያቄ አለዎት? ድጋፍ ይፈልጋሉ? ለመቀላቀል ዝግጁ ኖት? በማንኛውም ጊዜ ያግኙን።",
+    "btn": "መልዕክት ላክ"
+  },
+  "info": {
+    "items": {
+      "email": {
+        "title": "ኢሜል",
+        "content": "agrilinkethiopia@gmail.com",
+        "subtext": "በ24 ሰዓት መልስ"
+      },
+      "phone": {
+        "title": "ስልክ",
+        "content": "+251 1 234 5678",
+        "subtext": "3:00 — 12:00 ቀን (EAT)"
+      },
+      "office": {
+        "title": "መቀመጫ ቢሮ",
+        "content": "አዲስ አበባ",
+        "subtext": "ኢትዮጵያ"
+      },
+      "response": {
+        "title": "መልስ",
+        "content": "24 ሰዓት",
+        "subtext": "የስራ ቀንና ሳምንት መጨረሻ"
+      }
+    }
+  },
+  "form": {
+    "title": "መልዕክት ይላኩልን",
+    "labels": {
+      "name": "ሙሉ ስም",
+      "email": "ኢሜል አድራሻ",
+      "type": "የጉዳይ አይነት",
+      "subject": "ጉዳዩ",
+      "message": "መልዕክትዎ"
+    },
+    "placeholders": {
+      "name": "ለምሳሌ፣ አማኑኤል ተስፋዬ",
+      "email": "ለምሳሌ፣ amanuelt@example.com",
+      "subject": "የመልዕክት ጉዳይ በአጭሩ",
+      "message": "ዝርዝር መልዕክትዎን እዚህ ይጻፉ..."
+    },
+    "options": {
+      "general": "የተለምዶ ጥያቄ",
+      "support": "ቴክኒክ ድጋፍ",
+      "farmer": "የገበሬ መመዝገብ",
+      "buyer": "የገዢ መመዝገብ",
+      "delivery": "የመላኪያ ችግር"
+    },
+    "submit": "መልዕክት ላክ",
+    "sending": "በመላክ ላይ...",
+    "success": {
+      "title": "እናመሰግናለን!",
+      "message": "መልዕክትዎ ተልኳል። በ24 ሰዓት ውስጥ እናመልስልዎታለን።"
+    },
+    "errors": {
+      "title": "ስህተት",
+      "name": "ስም ያስፈልጋል።",
+      "email": "ኢሜል ያስፈልጋል።",
+      "subject": "ጉዳይ ያስፈልጋል።",
+      "message": "መልዕክት ያስፈልጋል።",
+      "emailValid": "ትክክለኛ ኢሜል ያስፈልጋል።",
+      "sendFailed": "መላክ አልተቻለም። እንደገና ይሞክሩ ወይም agrilinkethiopia@gmail.com ይጻፉ።"
+    }
+  },
+  "faq": {
+    "title": "ተደጋጋሚ ጥያቄዎች",
+    "items": {
+      "delivery": {
+        "q": "የመላኪያ ጊዜ ስንት ነው?",
+        "a": "2–3 የስራ ቀን።"
+      },
+      "payment": {
+        "q": "የክፍያ ዘዴዎች?",
+        "a": "Chapa ሁሉንም የክፍያ አይነቶች ይደግፋል።"
+      },
+      "cancel": {
+        "q": "ትዕዛዝ መሰረዝ እችላለሁ?",
+        "a": "አዎ፣ እስካልተላከ ድረስ ይቻላል።"
+      },
+      "registration": {
+        "q": "መመዝገብ ነጻ ነው?",
+        "a": "አዎን፣ ከሽያጭ ብቻ ኮሚሽን ይገባል።"
+      },
+      "support": {
+        "q": "ድጋፍ እንዴት ልገናኝ?",
+        "a": "በኢሜል፣ በስልክ ወይም በመተግበሪያ።"
+      }
+    }
+  },
+  "cta": {
+    "title": "ወደ አግሪሊንክ ኢትዮጵያ ለመቀላቀል ዝግጁ ነዎት?",
+    "subtitle": "ዛሬ ጀምሩ። እንደ ገበሬ ወይም እንደ ገዢ ይመዝገቡ።",
+    "btnStart": "ጀምር",
+    "btnLearn": "ተጨማሪ ማወቅ"
+  }
+},
+"privacyPolicy": {
+  "hero": {
+    "badge": "ግላዊነት እና ደህንነት",
+    "title": "የእርስዎ መረጃ",
+    "titleHighlight": "እኛ ጋር ደህንነቱ የተጠበቀ ነው።",
+    "description": "በድርጅት ደረጃ ደህንነት እና ሙሉ ግልጽነት የእርስዎን ግላዊነት እንጠብቃለን።",
+    "btn": "የፖሊሲ ዝርዝር ይመልከቱ"
+  },
+  "intro": "አግሪሊንክ ኢትዮጵያ እምነትህን ከፍ አድርጎ ይመለከተዋል። መረጃዎትን የምንሰበስበው፣ የምንጠቀምበት እና የምንጠብቀው እንዴት እንደሆነ ይኸው ነው።",
+  "sections": {
+    "collect": {
+      "title": "1. የምንሰበስበው",
+      "items": {
+        "personal": "የግል መረጃ፦ ስም፣ ስልክ፣ ኢሜይል፣ አድራሻ፣ ሚና",
+        "products": "የምርት መረጃ፦ አይነት፣ ዋጋ፣ ብዛት፣ ፎቶዎች",
+        "transactions": "የግብይት ታሪክ እና የመላኪያ ምዝግብ ማስታወሻዎች",
+        "behavior": "የመተግበሪያ እንቅስቃሴ እና ምርጫዎች",
+        "location": "አካባቢ (ለመላኪያ ብቻ)"
+      }
+    },
+    "why": {
+      "title": "2. ለምን እንሰበስባለን?",
+      "intro": "መረጃዎን የተሻለ አገልግሎት ለመስጠታችን ይረዳል፦",
+      "items": {
+        "matches": "የገበያ ግንኙነት በግል መስፈርት",
+        "alerts": "በቀጥታ ማስጠንቀቂያዎች እና የእርሻ ምክሮች",
+        "payments": "የደህንነት ያላቸው መክፈያዎች እና የመላኪያ መከታተያ",
+        "improvements": "ለድረ ገፅ ማሻሻያዎች"
+      }
+    },
+    "security": {
+      "title": "3. የመረጃ መጠበቂያ እና ደህንነት",
+      "items": {
+        "encryption": "የይለፍ ቃሎች በብክሪፕት የተመሰጠሩ ናቸው።",
+        "auth": "በተረጋገ ማረጋገጫ እና የክፍለ ጊዜ መቆጣጠር",
+        "roles": "በሚና የተመሠረተ መዳረሻ (ገበሬ፣ ገዢ)",
+        "nosell": "መረጃዎ በጭራሽ አይሸም ወይም አይከራዩም"
+      }
+    },
+    "rights": {
+      "title": "4. መብቶችዎ",
+      "items": {
+        "update": "መገለጫዎን በማንኛውም ጊዜ መቀየር",
+        "delete": "መለያዎን ማጥፋት እና ሙሉ መረጃ መሰረዝ መጠየቅ",
+        "laws": "በኢትዮጵያ የመረጃ መብት ሕጎች ተጠብቀዋል"
+      }
+    },
+    "contact": {
+      "title": "5. ጥያቄ አለ?",
+      "message": "የግላዊነት ጉዳይ አለዎት?",
+      "link": "እኛን ያግኙ",
+      "response": "— በ24 ሰዓታት ውስጥ እንመልስልዎታለን።"
+    }
+  }
+},
+"footer": {
+  "brand": "አግሪሊንክ ኢትዮጵያ",
+  "description": "ገበሬዎችን እና ገዢዎችን በቴክኖሎጂ በመገናኘት የአካባቢ ግብርናን የሚያበረከት መድረክ።",
+  "links": {
+    "title": "ፈጣን ማገናኛዎች",
+    "items": {
+      "home": "መነሻ ገጽ",
+      "about": "ስለ እኛ",
+      "contact": "ያግኙን",
+      "privacy": "የግላዊነት ፖሊሲ"
+    }
+  },
+  "social": {
+    "title": "ይከተሉን",
+    "items": {
+      "facebook": "በፌስቡክ ይከተሉን",
+      "twitter": "በትዊተር ይከተሉን",
+      "instagram": "በኢንስታግራም ይከተሉን",
+      "linkedin": "በሊንክድኢን ይከተሉን"
+    }
+  },
+  "copyright": "አግሪሊንክ ኢትዮጵያ. ሁሉም መብቶች የተጠበቁ ናቸው."
+}
 
 
 }

@@ -1,127 +1,195 @@
-import React from "react";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  Leaf,
+  Users,
+  Truck,
+  Bell,
+  DollarSign,
+  Globe,
+  Zap,
+  ChevronRight,
+  Shield,
+  TrendingUp,
+} from "lucide-react";
+import Navbar from "./navbar";
+import Footer from "./footer";
 import aboutImg from "../assets/aboutImg.png";
+import "../css/AboutPage.css";
+import vision from "../assets/vision.jpg";
+import { useTranslation } from "react-i18next";
 
-const About = () => {
-  const glassStyle = {
-    background: "rgba(255, 255, 255, 0.3)",
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)", // for Safari
-    borderRadius: "12px",
-    border: "1px solid rgba(255, 255, 255, 0.4)",
-    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-  };
+export default function About() {
+  const { t } = useTranslation();
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    setAnimate(true);
+  }, []);
 
   return (
     <>
-      <Navbar />
+      <div className="navbar-fixed">
+        <Navbar />
+      </div>
+
+      {/* HERO */}
       <section
-        className="text-success"
+        className="hero-section vh-100 min-vh-80-mob d-flex align-items-center position-relative overflow-hidden snap-section"
         style={{
-          backgroundImage: `url(${aboutImg})`,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${aboutImg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          padding: "60px 20px",
-          position: "relative",
+          backgroundAttachment: "fixed",
         }}
       >
-        {/* Overlay */}
-        {/* <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(255, 255, 255, 0.4)",
-            zIndex: 1,
-          }}
-        ></div> */}
-
-        {/* Content */}
-        <div
-          className="container"
-          style={{
-            maxWidth: "950px",
-            position: "relative",
-            zIndex: 2,
-            marginTop: "40px",
-          }}
-        >
-          {/* Hero Section */}
-          <div className="text-center mb-5" style={glassStyle}>
-            <div className="p-4">
-              <h2 className="fw-bold display-5 mb-3">
-                🌱 Welcome to AgriLink Ethiopia
-              </h2>
-              <p className="lead text-muted">
-                Empowering Ethiopian farmers through technology, transparency,
-                and connection. AgriLink transforms agriculture into a
-                collaborative, informed, and resilient ecosystem.
-              </p>
+        <div className="container position-relative z-10 px-4 px-md-5">
+          <div
+            className={`text-center text-white ${
+              animate ? "animate-in" : "opacity-0"
+            }`}
+          >
+            <div className="glass-badge mb-3 mb-md-4">
+              {t("about.hero.badge")}
             </div>
-          </div>
-
-          {/* Vision Section */}
-          <div className="mb-5 p-4" style={glassStyle}>
-            <h4 className="fw-bold mb-3">🚀 Our Vision</h4>
-            <p className="text-muted">
-              AgriLink isn't just a platform—it’s a mission-driven solution that
-              connects farmers, buyers, and advisors in real time. Our
-              mobile-friendly, multilingual interface reduces inefficiencies,
-              empowers rural communities, and modernizes agricultural practices.
+            <h1 className="display-4 display-md-3 fw-bold mb-3 mb-md-4 lh-1">
+              {t("about.hero.title")}{" "}
+              <span className="text-gradient d-block">
+                {t("about.hero.titleHighlight")}
+              </span>
+            </h1>
+            <p className="lead mb-4 mb-md-5 max-w-3xl mx-auto opacity-90 fs-6 fs-md-base">
+              {t("about.hero.description")}
             </p>
-          </div>
-
-          {/* Features Section */}
-          <div className="mb-5 p-4" style={glassStyle}>
-            <h4 className="fw-bold mb-4">✨ Key Features</h4>
-            <div className="row">
-              <div className="col-md-6">
-                <ul className="list-group list-group-flush">
-                  <li className="list-group-item bg-transparent border-0">
-                    👨‍🌾 Direct farmer-buyer marketplace
-                  </li>
-                  <li className="list-group-item bg-transparent border-0">
-                    🚚 Real-time delivery tracking
-                  </li>
-                  <li className="list-group-item bg-transparent border-0">
-                    📦 Digital order & transaction management
-                  </li>
-                </ul>
-              </div>
-              <div className="col-md-6">
-                <ul className="list-group list-group-flush">
-                  <li className="list-group-item bg-transparent border-0">
-                    🌦️ Smart alerts: pest, weather, and tips
-                  </li>
-                  <li className="list-group-item bg-transparent border-0">
-                    💳 Secure payments via Chapa
-                  </li>
-                  <li className="list-group-item bg-transparent border-0">
-                    🔔 Multilingual notifications & accessibility
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Impact Section */}
-          <div className="p-4" style={glassStyle}>
-            <h4 className="fw-bold mb-3">🌍 Why It Matters</h4>
-            <p className="text-muted">
-              By connecting farmers directly to markets, reducing post-harvest
-              losses, and integrating real-time information, AgriLink supports
-              sustainable agriculture and boosts rural livelihoods.
-            </p>
+            <a
+              href="#vision"
+              className="btn-modern btn-light d-inline-flex align-items-center gap-2"
+            >
+              {t("about.hero.btn")} <ChevronRight className="icon-sm" />
+            </a>
           </div>
         </div>
       </section>
+
+      {/* VISION */}
+      <section
+        id="vision"
+        className="min-vh-80-mob d-flex align-items-start bg-white py-5 snap-section"
+      >
+        <div className="container px-4 px-md-5 pt-5 pt-md-0">
+          <div className="row align-items-center g-4 g-md-5">
+            <div className="col-lg-6 order-2 order-lg-1">
+              <h2 className="display-5 fw-bold mb-3 mb-md-4">
+                {t("about.vision.title")}
+              </h2>
+              <p className="lead text-muted mb-3">
+                {t("about.vision.mission")}
+              </p>
+              <p className="text-muted">{t("about.vision.description")}</p>
+            </div>
+            <div className="col-lg-6 order-1 order-lg-2 mb-4 mb-lg-0">
+              <div className="hero-image-box rounded-3 overflow-hidden shadow-lg">
+                <img
+                  src={vision}
+                  alt={t("about.vision.imageAlt")}
+                  className="w-100 h-100 object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* KEY FEATURES */}
+      <section className="min-vh-80-mob d-flex align-items-start bg-light py-5 snap-section">
+        <div className="container px-4 px-md-5 pt-5 pt-md-0">
+          <div className="text-center mb-5">
+            <h2 className="display-5 fw-bold mb-3">
+              {t("about.features.title")}
+            </h2>
+            <p className="lead text-muted">{t("about.features.subtitle")}</p>
+          </div>
+          <div className="row g-3 g-md-4">
+            {[
+              {
+                icon: Users,
+                key: "marketplace",
+              },
+              {
+                icon: Truck,
+                key: "tracking",
+              },
+              {
+                icon: Bell,
+                key: "alerts",
+              },
+              {
+                icon: DollarSign,
+                key: "payments",
+              },
+              {
+                icon: Globe,
+                key: "multilingual",
+              },
+            ].map((feature, i) => {
+              const Icon = feature.icon;
+              return (
+                <div key={i} className="col-12 col-md-6 col-lg-4">
+                  <div className="feature-card p-3 p-md-4 rounded-3 shadow-sm h-100 d-flex gap-3">
+                    <div className="icon-box flex-shrink-0">
+                      <Icon size={28} className="text-white" />
+                    </div>
+                    <div>
+                      <h6 className="fw-bold mb-1">
+                        {t(`about.features.items.${feature.key}.title`)}
+                      </h6>
+                      <p className="text-muted small mb-0">
+                        {t(`about.features.items.${feature.key}.desc`)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* IMPACT */}
+      <section className="min-vh-80-mob d-flex align-items-start bg-white py-5 snap-section">
+        <div className="container px-4 px-md-5 pt-5 pt-md-0">
+          <div className="text-center mb-5">
+            <h2 className="display-5 fw-bold mb-3">
+              {t("about.impact.title")}
+            </h2>
+            <p className="lead text-muted">{t("about.impact.subtitle")}</p>
+          </div>
+          <div className="row g-3 g-md-4 justify-content-center">
+            {[
+              { value: "30%", key: "waste", icon: Shield },
+              { value: "45%", key: "earnings", icon: TrendingUp },
+              { value: "2,000+", key: "users", icon: Users },
+            ].map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <div key={i} className="col-6 col-md-4">
+                  <div className="impact-card text-center p-4 p-md-5 rounded-3 shadow-sm h-100 d-flex flex-column justify-content-center">
+                    <div className="icon-circle-lg mb-3 mx-auto">
+                      <Icon size={40} className="text-white" />
+                    </div>
+                    <h3 className="fw-bold text-success mb-1">{stat.value}</h3>
+                    <p className="text-muted small">
+                      {t(`about.impact.stats.${stat.key}`)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </>
   );
-};
-
-export default About;
+}

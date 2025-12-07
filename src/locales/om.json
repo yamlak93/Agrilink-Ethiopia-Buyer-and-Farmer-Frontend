@@ -31,7 +31,9 @@
     "codeSentToEmail": "Koodiin gara imeelii kee ergameera",
     "codeSent": "Koodii mirkaneessaa milkaa'inaan ergameera.",
     "codeVerified": "Koodiin milkaa'inaan mirkanaa'eera.",
-    "passwordReset": "Jecha iccitii milkaa'inaan deebifameera."
+    "passwordReset": "Jecha iccitii milkaa'inaan deebifameera.",
+    "loggingIn": "Seensa jira...",
+    "registering": "Uumi jira..."
   },
   "navigation": {
     "home": "Mana",
@@ -47,7 +49,8 @@
     "transactions": "Muuziqaa",
     "settings": "Qindaa'ina",
     "profile": "Piroofaayilii",
-    "admin": "Paanelii Adminii"
+    "admin": "Paanelii Adminii",
+    "browseProducts": "Oomishaalee Ilaali"
   },
   "dashboard": {
     "welcome": "Baga nagaan dhuftan, {{userName}}", 
@@ -120,8 +123,10 @@
     "farmer": "Qotee bultoo",
     "buyer": "Gurgurtaa",
     "status": "Haala",
+    "all": "Argamummaa",
     "pending": "Eeggamaa jira",
     "processing": "Guddachaa jira",
+    "in transit": "Imala irra jira",
     "shipped": "Ergame",
     "delivered": "Geeffame",
     "cancelled": "Haqame",
@@ -132,7 +137,9 @@
     "cancelOrder": "Ajaja Haqi",
     "orderDetail": "Bal’ina Ajajaa",
     "orderSummary": "Gabaabina Ajajaa",
-    "reopenOrder": "Ajaja Deebisanii Bani"
+    "reopenOrder": "Ajaja Deebisanii Bani",
+    "cancelWarning": "Ajajni kun ni haqama. Dhuguma barbaadda?",
+    "enterReason": "Sababa Haquu Galchi"
   },
   "delivery": {
     "title": "Geejjiba",
@@ -245,17 +252,232 @@
     "messageSent": "Ergaan milkaa’inaan ergame",
     "messageFailed": "Ergaan erguu hin milkoofne"
   },
-  "admin": {
-    "title": "Paanelii Adminii",
-    "manageUsers": "Fayyadamtoota too’achu",  
-    "manageFarmers": "Qotee bultoota too’achu",
-    "manageBuyers": "Gurgurtoota too’achu",
-    "manageProducts": "Oomishaalee too’achu",
-    "manageOrders": "Ajajawwan too’achu",
-    "managePayments": "Kaffaltii too’achu",
-    "manageTips": "Gorsa too’achu",
-    "systemSettings": "Qindaa’ina sirna",
-    "reports": "Gabaasa"
+  "buyerDashboard": {
+  "welcome": "Baga Nagaan Dhuftan",
+  "overview": "Kun gabaasa waliigalaa gochaawwan bittaa keessan",
+  "browseProducts": "Oomishaalee Ilaali",
+  "totalOrders": "Baayʼina Ajaja Guutuu",
+  "pendingDeliveries": "Gahuumsa Eeggataa",
+  "completedDeliveries": "Gahuumsa Xumurame",
+  "pendingDesc": "Kessatti guyyaa 2-3 keessatti ni dhufa",
+  "orderedOn": "Ajajame irratti",
+  "recentOrders": "Ajajawwan Dhiyoo",
+  "orderDetails": "Balʼina Ajajaa",
+  "recentProducts": "Oomishaalee Dhiyoo",
+  "viewAllOrders": "Ajajawwan Hunda Ilaali",
+  "freshFromFarmers": "Haaraa Qotee Bultoota Irraa",
+  "noOrders": "Ajajni hin jiru"
+},
+  "browseProducts": {
+    "title": "Oomishaalee Ilaali",
+    "subtitle": "Oomishaalee haaraa qotee bultoota irraa toora tooraan argadhaa",
+    "searchLabel": "Barbaadi",
+    "searchPlaceholder": "Maqaa, qotee bulaa, bakka...",
+    "categoryLabel": "Gosa",
+    "priceRange": "Sadarkaa Gatii",
+    "resetFilters": "Filannoowwan Haqi",
+    "loading": "Famaa jira...",
+    "noProductsFound": "Oomishaaleen hin argamne.",
+    "showAll": "Hunda Mul'isi"
+  },
+  "productDetails": {
+    "backToBrowse": "Garagaluu fi Ilaalchaatti Deebi'i",
+    "loading": "Famaa jira...",
+    "errorLoad": "Oomishni fe'uu hin dandeenye",
+    "farmer": "Qotee Bulaa",
+    "available": "Argama",
+    "quantity": "Hammamtaa",
+    "total": "Waliigala",
+    "tax": "Taaksi",
+    "delivery": "Gahuumsa",
+    "addToCart": "Kaarichaatti Dabaluu",
+    "adding": "Dabalamaa jira...",
+    "added": "Dabalame!",
+    "buyNow": "Amma Gidduu",
+    "moreFromFarmer": "Oomishaalee qotee bulaa kana irraa dabalataa",
+    "reviewsTitle": "Yaada Maamila",
+    "writeReview": "Yaada Barreessi",
+    "rating": "Sadarkaa",
+    "yourReview": "Yaada Kee",
+    "reviewPlaceholder": "Muuxannoo kee qoodi...",
+    "submitting": "Ergaa jira...",
+    "submitReview": "Yaada Ergi",
+    "noReviews": "Yaadonni hin argamne. Tokkoffaan ta'i!",
+    "deleteReview": "Yaada Haquu",
+    "deliveryAddress": "Teessoo Gahuumsa",
+    "whereDeliver": "Eessa geessisuu?",
+    "addressPlaceholder": "Fakkeenyaaf: Bole, Medhanealem biratti, Mana #123, Finfinnee",
+    "addressNote": "Teessoon kun gahuumsaaf ni fayyada. Booda ni jijjiiru dandeessu.",
+    "addressRequired": "Mee teessoo gahuumsa kee galchi",
+    "paymentFailed": "Kaffaltii jalqabuun hin milkoofne",
+    "networkError": "Dogoggora netwerk. Mee irra deebi'ii yaali.",
+    "reviewFailed": "Yaada erguun hin milkoofne",
+    "deleteFailed": "Yaada haquun hin milkoofne",
+    "processing": "Adeemsifamaa jira...",
+    "proceedPayment": "Kaffaltiitti Ce'i",
+    "confirmDelete": "Yaada kee haquu akka barbaaddu mirkaneessi. Tarkaanfiin kun hin deebi'u."
+  },
+  "buyerOrders": {
+    "title": "Ajajoota Koo",
+    "subtitle": "Bittoota kee hordofi fi too'achi",
+    "historyTitle": "Seenaa Ajajaa",
+    "searchPlaceholder": "Oomisha, ID ajajaa, qotee bulaa... barbaadi",
+    "loading": "Famaa jira...",
+    "loadingText": "Ajajoota famaa jira...",
+    "noOrders": "Ajajni hin argamne.",
+    "cancelSuccess": "Ajaji {{orderId}} haqameera. Deebi'in kaffaltii jalqabameera.",
+    "cancelFailed": "Ajaja haquu hin milkoofne.",
+     "card": {
+    "orderId": "Ajaja #{{id}}",
+    "moreItems": "+ {{count}} dabalataa",
+    "farmer": "Qotee Bulaa",
+    "viewDetails": "Faayidaa Ilaali"
+  },
+    "tabs": {
+      "all": "Ajajoota Hunda",
+      "pending": "Kan Eeggamaa Jira",
+      "processing": "Adeemsifamaa Jira",
+      "in_transit": "Deemaa Jira",
+      "delivered": "Geessame",
+      "cancelled": "Haqame"
+    },
+     "modal": {
+    "title": "Faayidaa Ajajaa",
+    "itemsTitle": "Oomishaaleen Ajajaman",
+    "orderDate": "Guyyaa Ajajaa",
+    "expectedDelivery": "Gahuun Eeggamu",
+    "estimatedDelivery": "Guyyaa ajajaa booda guyyoota 2",
+    "farmer": "Qotee Bulaa",
+    "totalAmount": "Maallaqa Waliigalaa",
+    "cancelOrder": "Ajaja Haqi"
+  }
+  },
+  "buyerProfile": {
+    "pageTitle": "Teessoo Akkaawuntii",
+    "pageSubtitle": "Teessoo fi filannoowwan akkaawuntii kee too'achi",
+    "tabs": {
+      "profile": "Profaayilii",
+      "password": "Jecha Darbii",
+      "account": "Akkaawuntii"
+    },
+    "profile": {
+      "title": "Odeeffannoo Profaayilii",
+      "loading": "Profaayilii famaa jira...",
+      "name": "Maqaa Guutuu",
+      "email": "Imeelii",
+      "phone": "Lakkoofsa Bilbila",
+      "address": "Teessoo",
+      "success": "Profaayiliin milkaa’inaan ni haaromfame!",
+      "updateFailed": "Profaayilii haaromsuu hin milkoofne."
+    },
+    "password": {
+      "title": "Jecha Darbii Jijjiiri",
+      "current": "Jecha Darbii Amma",
+      "new": "Jecha Darbii Haaraa",
+      "confirm": "Jecha Darbii Haaraa Mirkaneessi",
+      "update": "Jecha Darbii Haaromsi",
+      "success": "Jecha darbii ni haaromfame!",
+      "updateFailed": "Jecha darbii haaromsuu hin milkoofne.",
+      "mismatch": "Jecha darbii lamaanuu walsimu!",
+      "minLength": "Jecha darbii dheerina lakkoofsa 6 ol qabaachuu qaba."
+    },
+    "danger": {
+      "title": "Kutaa Hatarraa",
+      "warning": "Akkaawuntii yoo haqtan deebisuun hin danda’amu. Mee mirkaneessaa.",
+      "delete": "Akkaawuntii Haqi",
+      "deleted": "Akkaawuntiin haqameera. Gara fuula biraatti geessamaa jira...",
+      "deleteFailed": "Akkaawuntii haquu hin milkoofne.",
+      "confirmTitle": "Haquu Mirkaneessi",
+      "confirmQuestion": "Dhuguma gochuu barbaadduu?",
+      "confirmWarning": "Tarkaanfiin kun ni tura."
+    },
+    "errors": {
+      "loadFailed": "Odeeffannoo profaayilii fe’uu hin milkoofne."
+    }
+  },
+  "cart": {
+  "header": {
+    "title": "Karraa Bittaa",
+    "clearCart": "Karraa Haquu"
+  },
+  "item": {
+    "farmer": "Fardeessaa"
+  },
+  "empty": {
+    "title": "Karri kee duwwaa dha",
+    "subtitle": "Ka’umsaaf oomisha haaraa gara karraatti dabaluu jalqabi!",
+    "shopNow": "Bittaa Jalqabi"
+  },
+  "summary": {
+    "title": "Gabaabina Ajajaa",
+    "subtotal": "Waliigala xiqqaa",
+    "tax": "Taaksi (15%)",
+    "delivery": "Kaffaltii Geejjibaa (10%)",
+    "total": "Waliigala",
+    "payNow": "Amma Kaffaluu",
+    "continueShopping": "Bittaa Itti Fufi",
+    "secureCheckout": "Kaffaltiin ittifufiinsaan Chapa’n eegu"
+  },
+  "modal": {
+    "title": "Teessoo Geejjibaa",
+    "label": "Teessoo ajaja kee itti geessinu galchi",
+    "placeholder": "Fakkeenyaaf: Boolee, Medhanealem Ganda, Mana #123, Finfinnee",
+    "note": "Teessoon kun oomisha karra keessa jiran hundaaf ni fayyada.",
+    "addressError": "Mee teessoo geejjibaa galchaa",
+    "proceed": "Kaffaltii Garaatti Ce’u"
+  },
+  "alerts": {
+    "empty": "Karri kee duwwaa dha!",
+    "initFailed": "Kaffaltiin jalqabuu hin dandeenye",
+    "networkError": "Dogoggora network. Maaloo irra deebi’uun yaali."
+  }
+},
+"paymentResult": {
+    "status": {
+      "verifying": "Kaffaltii mirkaneessuuf...",
+      "success": "Kaffaltiin milkaa’e! Ajajni kee ni mirkanaa’e."
+    },
+    "loading": {
+      "title": "Kaffaltii Keessan Mirkaneessuuf...",
+      "subtitle": "Maaloo fuula kana hin cufinaa ykn hin haaromsinaa.",
+      "connecting": "Gateway nageenyaan eegame waliin wal-quunnamuuf..."
+    },
+    "failure": {
+      "title": "Rakkoo Kaffaltii"
+    },
+    "labels": {
+      "orderId": "ID Ajajaa"
+    },
+    "buttons": {
+      "viewOrders": "Ajajawwan Koo Ilaali",
+      "contactSupport": "Tumsaa Quunnami",
+      "continueShopping": "Bittaa Itti Fufi",
+      "downloadReceipt": "Faayilii PDF Ragaa Kaffaltii Buusi"
+    },
+    "errors": {
+      "invalidLink": "Linkii kaffaltii sirrii miti. Transaction reference hin jiru.",
+      "missingCart": "Odeeffannoon karra bittaa hin jiru.",
+      "invalidCart": "Odeeffannoon karraa sirrii miti.",
+      "notFound": "Ajajni hin argamne. Yeroo qinda’u qaba. Daqiiqaa 1 booda haaromsaa.",
+      "loadFailed": "Ragaa kaffaltii fe’uu hin dandeenye. Yoo kaffaltiin sitti hir’ate tumsaa quunnamaa."
+    },
+    "receipt": {
+      "slogan": "Oomisha Haaraa Qotee Bulaa Irraa Gara Maatii",
+      "contact": "Finfinnee, Itoophiyaa | support@agrilink.et | +251 911 223 344",
+      "orderId": "ID Ajajaa",
+      "transactionId": "ID Jijjiirraa",
+      "dateTime": "Guyyaa & Sa’aatii",
+      "purchaseSummary": "Gabaabina Bittaa",
+      "per": "guyyaa",
+      "from": "irraa",
+      "perUnit": "guyyaa tokkoof",
+      "subtotal": "Gabaaba",
+      "tax": "Taaksii (15% VAT)",
+      "delivery": "Kaffaltii Geejjibaa (10%)",
+      "totalPaid": "WALIIGALA KAAFALAME",
+      "thankYou": "Galatoomi!",
+      "deliveryTime": "Ajajni kee guyyaa 2 keessatti ni geeffama."
+    }
   },
    "settings": {
     "accountSettings": {
@@ -282,7 +504,12 @@
       "farmAddress": "Teessoo Qonnaa",
       "updateSuccess": "Piroofayilii milkaa'inaan haaromfame!",
       "updateError": "Piroofayilii haaromsuun hin milkoofne. Mee deebii yaali.",
-      "delete": "Qonna Haqi"
+      "delete": "Qonna Haqi",
+      "editBank": "Herrega Baankii Fooyyessi",
+      "setDefault": "Kan duraa taasisu",
+      "bankDetails": "Faayilii Baankii",
+      "default": "Kan duraa"
+
     },
     "password": {
       "title": "Jecha Iddoo Haaraa",
@@ -327,6 +554,7 @@
   },
   "errors": {
     "required": "Dirqama dha.",
+    "roleRequired": "Maalummaa dirqama dha.",
     "invalidEmail": "Imeelii sirrii miti",
     "passwordMismatch": "Jechi darbii walsimu hin qabu",
     "networkError": "Dogoggora network, maaloo irra deebi'ii yaali",
@@ -345,7 +573,10 @@
     "confirmPasswordRequired": "Jecha iccitii mirkaneessuu barbaachisa.",
     "passwordMin6": "Jechi iccitii hangafni isaa 6 ta'uu qaba.",
     "passwordResetFailed": "Jecha iccitii deebisuu hin milkaa'in. Mee deebi'ee yaali.",
-    "invalidPhone": "Lakkoofsa bilbilaan qabxiilee 10 qofa ta’uu qaba"
+    "invalidPhone": "Lakkoofsa bilbilaan qabxiilee 10 qofa ta’uu qaba",
+    "accountLength": "Herrega kee {{expected}} lakkoofsa qabaachuu qaba (ati {{actual}} galchite)",
+"bankLoadFailed": "Baankii fe’uun hin milkoofne. Mee qunnamtii kee sirreessiitii irra deebi’ii yaali."
+
   },
   "confirmations": {
     "title": "Mirkanneessi",
@@ -402,7 +633,14 @@
   "success": "Milkaa’e",
   "error": "Dogoggora",
   "updatedAt": "Haaromfame",
-  "role": "Maalummaa"
+  "role": "Maalummaa",
+  "update": "Haaromsi",
+  "verified": "Mirkanaa’e",
+  "pending": "Eeggamaa jira",
+  "products": "Oomishaalee",
+  "price":"Gatii",
+  "processing": "Adeemsifamaa jira...",
+  "deleting": "Haqamaa jira..."
 
   },
   "roles": {
@@ -476,6 +714,346 @@
     "fetchError": "Oduu qilleensaa argachuu hin danda’amne",
     "unit": "°C",
     "iconAlt": "Mallattoo qilleensaa"
+  },
+   "farmer": {
+    "farmName":"Maqaa Qonnaa",
+    "farmLocation": "Iddoo Qonnaa",
+    "farmNamePlaceholder": "Maqaa qonnaa galchi",
+    "farmLocationPlaceholder": "Iddoo qonnaa galchi",
+    "bank": "Baankii",
+    "selectBank": "— Baankii kee fili —",
+    "accountNumber": "Lakkoofsa Herregaa",
+    "accountNumberPlaceholder": "Lakkoofsa qofa galchi",
+    "accountName": "Maqaa Abbaa Herregaa",
+    "accountNamePlaceholder": "Maqaa guutuu akka herrega baankii irratti jiru galchi",
+    "accountLengthHint": "Lakkoofsi sirrii {{length}} ta’uu qaba",
+    "digits": "lakkoofsa"
+
+  },
+   "mainpage": {
+    "navbar": {
+      "brand": "AgriLink Itoophiyaa",
+      "login": "Seeni",
+      "language": "Afaan",
+      "links": {
+        "home": "Mana",
+        "about": "Waa'ee Keenya",
+        "contact": "Nu Quunnamaa"
+      }
+    },
+    "hero": {
+      "badge": "Hawaasa Qonnaa Itoophiyaa wal quunnamsiisaa",
+      "title": "Midhaan Haaraa,",
+      "titleHighlight": "Gara Qonnaan Bultoota Irraa",
+      "description": "AgriLink Itoophiyaa qonnaan bultoota fi bittoota wal quunnamsiisa; jiddu seenaa balleessa, kaffaltii haqaa mirkaneessa.",
+      "btnSell": "Gurguruu Jalqabi",
+      "btnBrowse": "Oomishaalee Ilaali",
+      "stats": {
+        "farmers": "Qonnaan Bultoota Hoaa'aa",
+        "deliveries": "Geessituu Milkaa'aa",
+        "satisfaction": "Sadarkaa Jajjabina"
+      }
+    },
+    "how": {
+      "title": "AgriLink Akka Hojiirra Oolu",
+      "subtitle": "Amajii fi Maamiltoota wal quunnamsiisuuf tarkaanfii sadi",
+      "steps": {
+        "profile": {
+          "title": "Piroofaayilii Uumi",
+          "desc": "Galmaa’iitii fi piroofaayilii qonnaan bultummaa ykn bittootaa ijaaradhaa."
+        },
+        "list": {
+          "title": "Tarreeffadhu yookaan Ilaali",
+          "desc": "Qonnaan bultoonni oomisha tarreessu; bittoonni iddoo fi qulqullina irratti hundaa’uun barbaadu."
+        },
+        "delivery": {
+          "title": "Geejjiba Eeggumsa Qabe",
+          "desc": "Geejjiba saffisaa fi hordoffii qabu, kaffaltii nageenyaan eeggame waliin."
+        }
+      }
+    },
+    "why": {
+      "title": "Qonnaan Bultoonni fi Bittoonni Maaliif AgriLink Filatu?",
+      "imageAlt": "AgriLink hojiirra jiru",
+      "items": {
+        "direct": {
+          "title": "Wal-qunnamsiisa Qajeelaa",
+          "desc": "Jiddu seenaa hin jiru — qonnaan bultoonni bittootaaf qajeelatti gurguru."
+        },
+        "pricing": {
+          "title": "Gatii Haqa Qabeessa",
+          "desc": "Gatiin ifaa ta’uun bu’aa qonnaan bultoota dabala."
+        },
+        "quality": {
+          "title": "Mirkaneessa Qulqullina",
+          "desc": "Tarreeffama mirkanaa’e fi sadarkaa bittootaa."
+        },
+        "logistics": {
+          "title": "Lojiistikii salphaa",
+          "desc": "Hordoffii yeroo dhugaa fi geejjiba qindaa’e."
+        },
+        "payments": {
+          "title": "Kaffaltii Nageenyaan Eeggame",
+          "desc": "Tajaajila kafaltii eegumsa qabu fi deebii saffisaa."
+        },
+        "community": {
+          "title": "Hawaasa guddicha",
+          "desc": "Qonnaan bultoota fi bittoota 2,000 olii waliin makama."
+        }
+      }
+    },
+    "impact": {
+      "title": "Sochii Keenya Lakkoofsaan",
+      "subtitle": "Gabaa Qonnaa Itoophiyaa guddisuu",
+      "stats": {
+        "farmers": "Qonnaan Bultoota Galmaa’anii",
+        "deliveries": "Geessituu Milkaa'aa",
+        "buyers": "Bittoota Hoaa'aa",
+        "satisfaction": "Sadarkaa Jajjabina"
+      }
+    },
+    "cta": {
+      "title": "Qonna Jijjiiruuf Qophooftee?",
+      "subtitle": "Konkolaattota AgriLink irratti daldaltoota fi qonnaan bultoota kumaatamaan makamaa.",
+      "btnFarmer": "Akka Qonnaan Bultootaatti Makama",
+      "btnBuyer": "Akka Bittootaatti Ilaali"
+    }
+  },
+  "about": {
+  "hero": {
+    "badge": "Waa'ee AgriLink Ethiopia",
+    "title": "Galmoota Horsisuu,",
+    "titleHighlight": "Guddina Qonnaa Jijjiiruu",
+    "description": "AgriLink qonnaan bultoota Itoophiyaa teknoolojii, iftoomina fi odeeffannoo yeroo-dhabaa fayyadamuun gara gabaa walqabsiisa.",
+    "btn": "Kaayyoo Keenya Ilaali"
+  },
+  "vision": {
+    "title": "Kaayyoo Keenya",
+    "mission": "Qonnaan bultoota gabaa, bittoota fi ogeeyyii qonnaa waliin walqabsiisuuf; gabatee dijitaalaa tokkummaa qabu uumuuf; geejjiba fi kaffaltii dijitaalaa salphisuuf; odeeffannoo qonnaa afaan hedduun dhiyeessuuf; walqixxummaa, bu'a qabeessummaa fi guddina waaraa mirkaneessuuf.",
+    "description": "Middistoonni haquu fi odeeffannoo yeroo-dhabaa kennuun balaa badaa & gatii wal'akkaa hir'ifna. Qonnaan bultoonni ammoo sadarkaa dijitaalaa keessatti guddatu.",
+    "imageAlt": "AgriLink Hojiirra Oolaa Jira"
+  },
+  "features": {
+    "title": "Amaloota Ijoof",
+    "subtitle": "Qonnaan bultoota fi bittoota hundaaf tajaajila tokkotti",
+    "items": {
+      "marketplace": {
+        "title": "Gabaa Wal-Duraa",
+        "desc": "Qonnaan bultoonni si'ata bittootaaf toora tokkotti gurguru — middleware hinjiru."
+      },
+      "tracking": {
+        "title": "Too'annoo Yeroo Dhiyoo",
+        "desc": "Galii keeti bakka bahaatii gara gabaa deemu hordofi."
+      },
+      "alerts": {
+        "title": "Beeksisa Ogumma",
+        "desc": "Beeksisa qilleensa, sanyii balaa fi gatii gabaa."
+      },
+      "payments": {
+        "title": "Kaffaltii Eegumsa Qabu",
+        "desc": "Kaffaltii saffisaa fi nageenya qabu Chapa waliin."
+      },
+      "multilingual": {
+        "title": "Afaan Hedduu",
+        "desc": "Afaan Oromoo, Amaariffaa, Ingiliffaa fi kkf ni deeggarra."
+      },
+      "mobile": {
+        "title": "Mobile-First",
+        "desc": "Naannoo baadiyyaa keessatti offline ni hojjeta."
+      }
+    }
+  },
+  "impact": {
+    "title": "Maaliif Barbachisaa?",
+    "subtitle": "Qonnaan Bultoota fi hawaasa irratti miidhaa haqa qabeessa qabu",
+    "stats": {
+      "waste": "Gondoo Hir'ina",
+      "earnings": "Galii Dabalaa",
+      "users": "Fayyadamaa Qeebisiisaa"
+    }
   }
+},
+"contactUs": {
+  "hero": {
+    "badge": "Nu Quunnamaa",
+    "title": "Dhagahuuf",
+    "titleHighlight": "Qophii Dha",
+    "description": "Gaaffii qabduu? Deeggarsa barbaadaa? Nu qunnamaa yoomiyyuu.",
+    "btn": "Ergaa Ergi"
+  },
+  "info": {
+    "items": {
+      "email": {
+        "title": "Imeelii",
+        "content": "agrilinkethiopia@gmail.com",
+        "subtext": "Deebii sa’aatii 24"
+      },
+      "phone": {
+        "title": "Bilbila",
+        "content": "+251 1 234 5678",
+        "subtext": "Sa’a 9 – 6 (EAT)"
+      },
+      "office": {
+        "title": "Office",
+        "content": "Finfinnee",
+        "subtext": "Itoophiyaa"
+      },
+      "response": {
+        "title": "Deebii",
+        "content": "Sa’aatii 24",
+        "subtext": "Guyyaa fi torban-keenyaa"
+      }
+    }
+  },
+  "form": {
+    "title": "Nuuf Ergaa Barreessi",
+    "labels": {
+      "name": "Maqaa Guutuu",
+      "email": "Teessoo Imeelii",
+      "type": "Gosa Mata-duree",
+      "subject": "Mata-duree",
+      "message": "Ergaa Kee"
+    },
+    "placeholders": {
+      "name": "Fakkeenyaaf: Amanuel Tesfa",
+      "email": "Fakkeenyaaf: amanuelt@example.com",
+      "subject": "Mata-duree gabaabaa",
+      "message": "Ergaa bal’aa asitti barreessi..."
+    },
+    "options": {
+      "general": "Gaaffii Waliigalaa",
+      "support": "Deeggarsa Teknikaa",
+      "farmer": "Galmee Qorichaa",
+      "buyer": "Galmee Bitataa",
+      "delivery": "Rakkoo Geejjibaa"
+    },
+    "submit": "Ergaa Ergi",
+    "sending": "Ergamaa jira...",
+    "success": {
+      "title": "Galatoomi!",
+      "message": "Ergaan kee nu gaheera. Sa’aatii 24 keessatti si deebifna."
+    },
+    "errors": {
+      "title": "Dogoggora",
+      "name": "Maqaan dirqama.",
+      "email": "Imeelii dirqama.",
+      "subject": "Mata-duree dirqama.",
+      "message": "Ergaan dirqama.",
+      "emailValid": "Imeelii sirrii galchi.",
+      "sendFailed": "Ergaan hin ergamne. Itti yaali ykn agrilinkethiopia@gmail.com barreessi."
+    }
+  },
+  "faq": {
+    "title": "Gaaffii Waliigalaa",
+    "items": {
+      "delivery": {
+        "q": "Geejjibni hammam fudhata?",
+        "a": "Guyyaa hojii 2–3."
+      },
+      "payment": {
+        "q": "Kaffaltii akkamitti?",
+        "a": "Chapa meeshaalee kaffaltii hunda ni deeggara."
+      },
+      "cancel": {
+        "q": "Ajaja haquu nan danda'aa?",
+        "a": "Eeyyee, erga hin ergamee dura."
+      },
+      "registration": {
+        "q": "Galmeen kaffaltii qaba?",
+        "a": "Lakki, gurgurtaa irratti qofa komishinii jiru."
+      },
+      "support": {
+        "q": "Deeggarsa akkamitti argadha?",
+        "a": "Imeelii, bilbila ykn appiin."
+      }
+    }
+  },
+  "cta": {
+    "title": "AgriLink waliin hiriiruuf qophooftee?",
+    "subtitle": "Har’a jalqabi. Akka Qorichaatti ykn Akka Bitataatti galmaa'i.",
+    "btnStart": "Jalqabi",
+    "btnLearn": "Dabalata Baradhu"
+  }
+},
+"privacyPolicy": {
+  "hero": {
+    "badge": "Dhuunfaa & Nageenya",
+    "title": "Deetaa Kee",
+    "titleHighlight": "Nagaadha",
+    "description": "Dhuunfaakee tikfanna, tajaajila nageenyaa olaanaa fi iftoomina guutuu waliin.",
+    "btn": "Seericha Dubbisi"
+  },
+  "intro": "AgriLink Ethiopia amanamummaa keessan ni kabaja. Odeeffannoo isin irraa walitti qabnu, itti fayyadamnu fi akkamitti tiksinu ifatti isin beeksifna.",
+  "sections": {
+    "collect": {
+      "title": "1. Maal Walitti Qabna",
+      "items": {
+        "personal": "Odeeffannoo dhuunfaa: maqaa, bilbila, email, naannoo, gahee",
+        "products": "Odeeffannoo oomishaa: gosa, gatii, baay’ina, suuraawwan",
+        "transactions": "Seenaa waliigaltee fi galmee geejjibaa",
+        "behavior": "Hawaasummaa appii fi filannoowwan",
+        "location": "Bakki jiruu (geejjibaaf qofa)"
+      }
+    },
+    "why": {
+      "title": "2. Maalif Walitti Qabna",
+      "intro": "Odeeffannoon keessan tajaajila keessan fooyyessuuf gargaara:",
+      "items": {
+        "matches": "Walitti makuu gatii fi gabaa namaaf mijataa",
+        "alerts": "Beeksisaa yeroo-dhugaa fi gorsa qonnaa",
+        "payments": "Kaffaltii nageenyaan raawwatamu fi hordoffii geejjibaa",
+        "improvements": "Fooyya'insa platformii"
+      }
+    },
+    "security": {
+      "title": "3. Eegumsa Deetaa fi Nageenya",
+      "items": {
+        "encryption": "Jecha iccitiin bcrypt iin tiksama",
+        "auth": "Mirkaneessa JWT fi to'annoo sessionii",
+        "roles": "Eeyyama gahee irratti hundaa’e (qotee bultii, bitataa)",
+        "nosell": "Deetaa keessanhin gurgurru hinis kireessinu"
+      }
+    },
+    "rights": {
+      "title": "4. Mirga Kee",
+      "items": {
+        "update": "Profaayilii keessan yeroo barbaaddan fooyyessuu",
+        "delete": "Akkaawuntii haqaa fi deetaa guutuu haquu gaafachuu",
+        "laws": "Seerota deetaa Itiyoophiyaa jalatti ni eegama"
+      }
+    },
+    "contact": {
+      "title": "5. Gaaffii Qabdaa?",
+      "message": "Gaaffii dhuunfaa qabdaa?",
+      "link": "Nu qunnamaa",
+      "response": "— yeroo 24 keessatti deebii ni argattu."
+    }
+  }
+},
+"footer": {
+  "brand": "AgriLink Ethiopia",
+  "description": "Qotee bultootaa fi bittoota walitti hidhuu, teeknolojii tajaajila qonnaa ammayyaa'u gargaartu waliin.",
+  "links": {
+    "title": "Linxii Ariifachiisaa",
+    "items": {
+      "home": "Gara Gulaalaa",
+      "about": "Waa'ee Keenya",
+      "contact": "Nu qunnamaa",
+      "privacy": "Seera Dhuunfaa"
+    }
+  },
+  "social": {
+    "title": "Nu Hordofaa",
+    "items": {
+      "facebook": "Nu hordofa Facebook irratti",
+      "twitter": "Nu hordofa Twitter irratti",
+      "instagram": "Nu hordofa Instagram irratti",
+      "linkedin": "Nu hordofa LinkedIn irratti"
+    }
+  },
+  "copyright": "AgriLink Ethiopia. Mirgi hundi kan eeggame."
+}
+
+
 }
 

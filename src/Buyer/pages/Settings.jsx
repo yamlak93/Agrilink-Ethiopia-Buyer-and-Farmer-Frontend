@@ -1,19 +1,26 @@
-import React, { useState } from "react";
-import "../../Css/Devices.css"; // Import Devices.css for ms-md-250
-import Navbar from "../components/Navbar"; // Assuming Navbar is in components folder
-import Sidebar from "../components/Sidebar"; // Assuming Sidebar is in components folder
-import StylishModal from "../components/StylishModal"; // Assuming StylishModal is in components folder
+// src/pages/Settings.jsx
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "../../Css/Devices.css";
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import StylishModal from "../components/StylishModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
+import { faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
+import apiClient from "../../api/api";
+import { useTranslation } from "react-i18next";
 
 const Settings = () => {
-  const [activeTab, setActiveTab] = useState("profile");
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const [activeTab, setActiveTab] = useState("profile"); // internal key
   const [profileData, setProfileData] = useState({
-    fullName: "Abebe Kebede",
-    email: "abebe@example.com",
-    phoneNumber: "+251 91 987 6543",
-    location: "Addis Ababa",
+    buyerName: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
   });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -21,55 +28,149 @@ const Settings = () => {
     confirmPassword: "",
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [modal, setModal] = useState({
     isVisible: false,
     message: "",
     type: "",
   });
 
+  useEffect(() => {
+    fetchBuyerData();
+  }, []);
+
+  const fetchBuyerData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      const response = await apiClient.get("/buyer/profile");
+      const buyer = response.data;
+
+      setProfileData({
+        buyerName: buyer.buyerName || "",
+        email: buyer.email || "",
+        phoneNumber: buyer.phoneNumber || "",
+        address: buyer.address || "",
+      });
+    } catch (error) {
+      console.error("Error fetching buyer data:", error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login", { replace: true });
+      } else {
+        setModal({
+          isVisible: true,
+          message: t("buyerProfile.errors.loadFailed"),
+          type: "error",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleProfileInputChange = (e) => {
     const { name, value } = e.target;
-    setProfileData((prevData) => ({ ...prevData, [name]: value }));
+    setProfileData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePasswordInputChange = (e) => {
     const { name, value } = e.target;
-    setPasswordData((prevData) => ({ ...prevData, [name]: value }));
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveProfile = () => {
-    // Simulate saving profile changes
-    console.log("Saving profile changes:", profileData);
-    setIsEditing(false);
-
-    setModal({
-      isVisible: true,
-      message: "Profile updated successfully!",
-      type: "success",
-    });
+  const handleSaveProfile = async () => {
+    try {
+      await apiClient.put("/buyer/update-profile", profileData);
+      setIsEditing(false);
+      setModal({
+        isVisible: true,
+        message: t("buyerProfile.profile.success"),
+        type: "success",
+      });
+    } catch (error) {
+      setModal({
+        isVisible: true,
+        message:
+          error.response?.data?.message ||
+          t("buyerProfile.profile.updateFailed"),
+        type: "error",
+      });
+    }
   };
 
-  const handleSavePassword = () => {
-    // Simulate password change logic
-    console.log("Changing password:", passwordData);
+  const handleSavePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setModal({
         isVisible: true,
-        message: "New password and confirmation do not match.",
+        message: t("buyerProfile.password.mismatch"),
         type: "error",
       });
-    } else {
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
       setModal({
         isVisible: true,
-        message: "Password updated successfully!",
+        message: t("buyerProfile.password.minLength"),
+        type: "error",
+      });
+      return;
+    }
+
+    try {
+      await apiClient.put("/buyer/password", {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
+      setModal({
+        isVisible: true,
+        message: t("buyerProfile.password.success"),
         type: "success",
       });
-      // Clear password fields after successful update
       setPasswordData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+    } catch (error) {
+      setModal({
+        isVisible: true,
+        message:
+          error.response?.data?.message ||
+          t("buyerProfile.password.updateFailed"),
+        type: "error",
+      });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeleting(true);
+      await apiClient.delete("/buyer/delete-account");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setModal({
+        isVisible: true,
+        message: t("buyerProfile.danger.deleted"),
+        type: "success",
+      });
+      setTimeout(() => navigate("/login", { replace: true }), 2000);
+    } catch (error) {
+      setModal({
+        isVisible: true,
+        message:
+          error.response?.data?.message ||
+          t("buyerProfile.danger.deleteFailed"),
+        type: "error",
+      });
+      setIsDeleting(false);
     }
   };
 
@@ -77,160 +178,187 @@ const Settings = () => {
     setModal({ isVisible: false, message: "", type: "" });
   };
 
+  // === TABS (internal keys + translated labels) ===
+  const tabs = [
+    { key: "profile", label: t("buyerProfile.tabs.profile") },
+    { key: "password", label: t("buyerProfile.tabs.password") },
+    { key: "account", label: t("buyerProfile.tabs.account") },
+  ];
+
   const renderProfileContent = () => {
+    if (loading) {
+      return (
+        <div className="card my-4 text-center">
+          <div className="card-body">
+            <div className="spinner-border text-success" role="status">
+              <span className="visually-hidden">{t("common.loading")}</span>
+            </div>
+            <p className="mt-2">{t("buyerProfile.profile.loading")}</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="card my-4">
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center">
-            <h5 className="card-title">Profile Information</h5>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="card-title">{t("buyerProfile.profile.title")}</h5>
             {!isEditing && (
               <button
                 className="btn btn-outline-secondary btn-sm"
                 onClick={() => setIsEditing(true)}
               >
-                <FontAwesomeIcon icon={faPencilAlt} className="me-2" /> Edit
+                <FontAwesomeIcon icon={faPencilAlt} className="me-2" />
+                {t("common.edit")}
               </button>
             )}
           </div>
-          <p className="card-text">
-            Update your personal information and profile details
-          </p>
 
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label htmlFor="fullName" className="form-label">
-                Full Name
+          <div className="row g-3">
+            <div className="col-md-6">
+              <label className="form-label">
+                {t("buyerProfile.profile.name")}
               </label>
               <input
                 type="text"
                 className="form-control"
-                id="fullName"
-                name="fullName"
-                value={profileData.fullName}
+                name="buyerName"
+                value={profileData.buyerName}
                 readOnly={!isEditing}
                 onChange={handleProfileInputChange}
-                required
               />
             </div>
-            <div className="col-md-6 mb-3">
-              <label htmlFor="email" className="form-label">
-                Email
+            <div className="col-md-6">
+              <label className="form-label">
+                {t("buyerProfile.profile.email")}
               </label>
               <input
                 type="email"
                 className="form-control"
-                id="email"
                 name="email"
                 value={profileData.email}
                 readOnly={!isEditing}
                 onChange={handleProfileInputChange}
-                required
               />
             </div>
-          </div>
-
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label htmlFor="phoneNumber" className="form-label">
-                Phone Number
+            <div className="col-md-6">
+              <label className="form-label">
+                {t("buyerProfile.profile.phone")}
               </label>
               <input
                 type="tel"
                 className="form-control"
-                id="phoneNumber"
                 name="phoneNumber"
                 value={profileData.phoneNumber}
                 readOnly={!isEditing}
                 onChange={handleProfileInputChange}
-                required
               />
             </div>
-            <div className="col-md-6 mb-3">
-              <label htmlFor="location" className="form-label">
-                Location
+            <div className="col-md-6">
+              <label className="form-label">
+                {t("buyerProfile.profile.address")}
               </label>
               <input
                 type="text"
                 className="form-control"
-                id="location"
-                name="location"
-                value={profileData.location}
+                name="address"
+                value={profileData.address}
                 readOnly={!isEditing}
                 onChange={handleProfileInputChange}
-                required
               />
             </div>
           </div>
 
-          <div className="d-flex justify-content-end mt-4">
-            {isEditing && (
-              <button className="btn btn-success" onClick={handleSaveProfile}>
-                Save Changes
+          {isEditing && (
+            <div className="d-flex justify-content-end mt-4 gap-2">
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => {
+                  setIsEditing(false);
+                  fetchBuyerData();
+                }}
+              >
+                {t("common.cancel")}
               </button>
-            )}
-          </div>
+              <button className="btn btn-success" onClick={handleSaveProfile}>
+                {t("common.save")}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
   };
 
-  const renderPasswordContent = () => {
-    return (
-      <div className="card my-4">
-        <div className="card-body">
-          <h5 className="card-title">Change Password</h5>
-          <p className="card-text">Update your account password</p>
-          <div className="mb-3">
-            <label htmlFor="currentPassword" className="form-label">
-              Current Password
+  const renderPasswordContent = () => (
+    <div className="card my-4">
+      <div className="card-body">
+        <h5 className="card-title">{t("buyerProfile.password.title")}</h5>
+        <div className="row g-3">
+          <div className="col-md-12">
+            <label className="form-label">
+              {t("buyerProfile.password.current")}
             </label>
             <input
               type="password"
               className="form-control"
-              id="currentPassword"
               name="currentPassword"
               value={passwordData.currentPassword}
               onChange={handlePasswordInputChange}
-              required
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="newPassword" className="form-label">
-              New Password
+          <div className="col-md-6">
+            <label className="form-label">
+              {t("buyerProfile.password.new")}
             </label>
             <input
               type="password"
               className="form-control"
-              id="newPassword"
               name="newPassword"
               value={passwordData.newPassword}
               onChange={handlePasswordInputChange}
-              required
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="confirmPassword" className="form-label">
-              Confirm New Password
+          <div className="col-md-6">
+            <label className="form-label">
+              {t("buyerProfile.password.confirm")}
             </label>
             <input
               type="password"
               className="form-control"
-              id="confirmPassword"
               name="confirmPassword"
               value={passwordData.confirmPassword}
               onChange={handlePasswordInputChange}
-              required
             />
           </div>
-          <div className="d-flex justify-content-end mt-4">
-            <button className="btn btn-success" onClick={handleSavePassword}>
-              Update Password
-            </button>
-          </div>
+        </div>
+        <div className="d-flex justify-content-end mt-4">
+          <button className="btn btn-success" onClick={handleSavePassword}>
+            {t("buyerProfile.password.update")}
+          </button>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+
+  const renderDangerZone = () => (
+    <div className="card my-4 border-danger">
+      <div className="card-body">
+        <h5 className="card-title text-danger">
+          {t("buyerProfile.danger.title")}
+        </h5>
+        <p className="text-muted">{t("buyerProfile.danger.warning")}</p>
+        <button
+          className="btn btn-danger"
+          onClick={() => setShowDeleteConfirm(true)}
+        >
+          <FontAwesomeIcon icon={faTrash} className="me-2" />
+          {t("buyerProfile.danger.delete")}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -239,43 +367,33 @@ const Settings = () => {
         <Sidebar />
         <div
           className="container-fluid p-4 ms-md-250"
-          style={{ marginTop: "60px", width: "100%" }} // Keep marginTop for navbar offset
+          style={{ marginTop: "60px" }}
         >
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <h2>Account Settings</h2>
-              <p className="text-muted">
-                Manage your account settings and preferences
-              </p>
-            </div>
+          <div className="mb-4">
+            <h2>{t("buyerProfile.pageTitle")}</h2>
+            <p className="text-muted">{t("buyerProfile.pageSubtitle")}</p>
           </div>
 
-          <ul className="nav nav-tabs">
-            <li className="nav-item">
-              <button
-                className={`nav-link ${
-                  activeTab === "profile" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("profile")}
-              >
-                Profile
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className={`nav-link ${
-                  activeTab === "password" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("password")}
-              >
-                Password
-              </button>
-            </li>
+          <ul className="nav nav-tabs mb-4">
+            {tabs.map((tab) => (
+              <li className="nav-item" key={tab.key}>
+                <button
+                  className={`nav-link ${
+                    activeTab === tab.key ? "active" : ""
+                  }`}
+                  onClick={() => setActiveTab(tab.key)}
+                >
+                  {tab.label}
+                </button>
+              </li>
+            ))}
           </ul>
 
           {activeTab === "profile"
             ? renderProfileContent()
-            : renderPasswordContent()}
+            : activeTab === "password"
+            ? renderPasswordContent()
+            : renderDangerZone()}
         </div>
       </div>
 
@@ -285,6 +403,65 @@ const Settings = () => {
         type={modal.type}
         onClose={handleCloseModal}
       />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header border-danger">
+                <h5 className="modal-title text-danger">
+                  {t("buyerProfile.danger.confirmTitle")}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                />
+              </div>
+              <div className="modal-body">
+                <p className="fw-bold">
+                  {t("buyerProfile.danger.confirmQuestion")}
+                </p>
+                <p className="text-muted">
+                  {t("buyerProfile.danger.confirmWarning")}
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                >
+                  {t("common.cancel")}
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" />
+                      {t("common.deleting")}
+                    </>
+                  ) : (
+                    <>
+                      <FontAwesomeIcon icon={faTrash} className="me-2" />
+                      {t("buyerProfile.danger.delete")}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

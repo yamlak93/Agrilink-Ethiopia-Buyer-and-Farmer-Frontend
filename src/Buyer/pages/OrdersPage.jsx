@@ -1,155 +1,165 @@
-import React, { useState } from "react";
-import "../../Css/Devices.css"; // Import Devices.css for ms-md-250
+// src/Buyer/pages/OrdersPage.jsx
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import "../../Css/Devices.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Navbar from "../components/Navbar"; // Assuming Navbar is in components folder
-import Sidebar from "../components/Sidebar"; // Assuming Sidebar is in components folder
-import OrderCard from "../components/OrderCard"; // Assuming OrderCard is in the same folder as OrdersPage
-import OrderDetailModal from "../components/OrderDetailModal"; // Import the new modal
-import StylishModal from "../components/StylishModal"; // Assuming StylishModal is in components folder
-import CancelReasonModal from "../components/CancelReasonModal"; // New modal for cancellation reason
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import OrderCard from "../components/OrderCard";
+import OrderDetailModal from "../components/OrderDetailModal";
+import CancelReasonModal from "../components/CancelReasonModal";
+import StylishModal from "../components/StylishModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import apiClient from "../../api/api";
+import { useTranslation } from "react-i18next";
 
-// Sample order data
-const initialOrders = [
-  {
-    id: 1,
-    productName: "Teff - Premium Quality",
-    orderId: "ORD-001",
-    farmerName: "Kebede Tadesse",
-    location: "Addis Ababa",
-    orderDate: "2025-05-12",
-    quantity: 1,
-    unit: "quintal",
-    deliveryDate: "2023-05-15",
-    totalPrice: "1,200",
-    status: "Delivered",
-  },
-  {
-    id: 2,
-    productName: "Organic Coffee Beans",
-    orderId: "ORD-002",
-    farmerName: "Almaz Haile",
-    location: "Yirgacheffe",
-    orderDate: "2023-05-18",
-    quantity: 2,
-    unit: "kg",
-    deliveryDate: "2023-05-21",
-    totalPrice: "1,700",
-    status: "Shipped",
-  },
-  {
-    id: 3,
-    productName: "Fresh Avocados",
-    orderId: "ORD-003",
-    farmerName: "Girma Bekele",
-    location: "Hawassa",
-    orderDate: "2023-05-20",
-    quantity: 10,
-    unit: "kg",
-    deliveryDate: "2023-05-22",
-    totalPrice: "350",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    productName: "Honey - Pure",
-    orderId: "ORD-004",
-    farmerName: "Tigist Mengistu",
-    location: "Gonder",
-    orderDate: "2023-05-25",
-    quantity: 2,
-    unit: "liter",
-    deliveryDate: "2023-05-28",
-    totalPrice: "1,000",
-    status: "Pending",
-  },
-  {
-    id: 5,
-    productName: "Red Onions",
-    orderId: "ORD-005",
-    farmerName: "Dawit Hailu",
-    location: "Mekelle",
-    orderDate: "2023-05-27",
-    quantity: 20,
-    unit: "kg",
-    deliveryDate: "2023-05-30",
-    totalPrice: "500",
-    status: "Pending",
-  },
-];
+// === STATUS BADGE (unchanged) ===
+export const getStatusBadge = (status) => {
+  const s = status?.toLowerCase();
+  switch (s) {
+    case "delivered":
+      return "bg-success text-white";
+    case "in transit":
+      return "bg-primary text-white";
+    case "processing":
+      return "bg-info text-white";
+    case "pending":
+      return "bg-warning text-dark";
+    case "cancelled":
+      return "bg-danger text-white";
+    default:
+      return "bg-secondary text-white";
+  }
+};
 
 const OrdersPage = () => {
-  const [orders, setOrders] = useState(initialOrders);
-  const [activeTab, setActiveTab] = useState("All Orders");
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("all"); // internal key
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateFilter, setDateFilter] = useState({
-    startDate: "",
-  });
-  // State to control the visibility of the OrderDetailModal
+  const [dateFilter, setDateFilter] = useState({ startDate: "" });
   const [isDetailModalVisible, setDetailModalVisible] = useState(false);
-  // State to store the currently selected order for the modal
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  // State for CancelReasonModal
   const [isCancelReasonModalVisible, setCancelReasonModalVisible] =
     useState(false);
   const [selectedOrderIdForCancel, setSelectedOrderIdForCancel] =
     useState(null);
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesTab = activeTab === "All Orders" || order.status === activeTab;
-    const matchesSearch =
-      order.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.farmerName.toLowerCase().includes(searchTerm.toLowerCase());
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
-    // Exact date match using string comparison
-    const matchesDate =
-      !dateFilter.startDate || order.orderDate === dateFilter.startDate;
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login", { replace: true });
+        return;
+      }
 
-    return matchesTab && matchesSearch && matchesDate;
-  });
+      const response = await apiClient.get("/buyer/orders");
+      setOrders(response.data || []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login", { replace: true });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Handler to open the Order Detail Modal
+  // === FILTER LOGIC (Farmer-style) ===
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const normalizedStatus = order.status?.toLowerCase().replace(/\s+/g, "_");
+
+      const matchesTab =
+        activeTab === "all" ||
+        normalizedStatus === activeTab ||
+        (activeTab === "in_transit" && normalizedStatus === "in_transit");
+
+      const matchesSearch =
+        String(order.orderId ?? "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        String(order.farmerName ?? "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        order.products.some((p) =>
+          String(p.productName ?? "")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        );
+
+      const matchesDate =
+        !dateFilter.startDate || order.orderDate === dateFilter.startDate;
+
+      return matchesTab && matchesSearch && matchesDate;
+    });
+  }, [orders, activeTab, searchTerm, dateFilter]);
+
   const handleOpenDetailModal = (order) => {
-    setSelectedOrder(order); // Set the order data to be displayed
-    setDetailModalVisible(true); // Make the modal visible
+    setSelectedOrder(order);
+    setDetailModalVisible(true);
   };
 
-  // Handler to close the Order Detail Modal
   const handleCloseDetailModal = () => {
-    setDetailModalVisible(false); // Hide the modal
-    setSelectedOrder(null); // Clear selected order when closing
+    setDetailModalVisible(false);
+    setSelectedOrder(null);
   };
 
-  // Handler to initiate order cancellation
   const handleCancelOrder = (orderId) => {
     setSelectedOrderIdForCancel(orderId);
-    setCancelReasonModalVisible(true); // Open the cancel reason modal
+    setCancelReasonModalVisible(true);
   };
 
-  // Handler to confirm cancellation with reason
-  const handleConfirmCancel = (orderId, reason) => {
-    console.log(`Cancelling order with ID: ${orderId}, Reason: ${reason}`);
-    setOrders(
-      orders.map((order) =>
-        order.id === orderId
-          ? { ...order, status: "Cancelled", cancelReason: reason }
-          : order
-      )
-    );
-    setCancelReasonModalVisible(false); // Close the cancel reason modal
-    setSuccessMessage(`Order ${orderId} has been cancelled. Reason: ${reason}`);
-    setSuccessModalVisible(true); // Show success modal
+  const handleConfirmCancel = async (orderId, reason) => {
+    try {
+      await apiClient.put(`/buyer/orders/${orderId}/cancel`, { reason });
+
+      setOrders(
+        orders.map((o) =>
+          o.id === orderId
+            ? { ...o, status: "cancelled", cancelReason: reason }
+            : o
+        )
+      );
+
+      setCancelReasonModalVisible(false);
+      setSuccessMessage(t("buyerOrders.cancelSuccess", { orderId }));
+      setSuccessModalVisible(true);
+    } catch (error) {
+      console.error("Error cancelling:", error);
+      const msg =
+        error.response?.data?.message || t("buyerOrders.cancelFailed");
+      setSuccessMessage(msg);
+      setSuccessModalVisible(true);
+    }
   };
 
-  // Handler for closing the success modal
   const handleCloseSuccessModal = () => {
     setSuccessModalVisible(false);
     setSuccessMessage("");
   };
+
+  // === STATUS TABS (Farmer-style) ===
+  const tabs = [
+    "all",
+    "pending",
+    "processing",
+    "in_transit",
+    "delivered",
+    "cancelled",
+  ];
 
   return (
     <>
@@ -158,116 +168,93 @@ const OrdersPage = () => {
         <Sidebar />
         <div
           className="container-fluid p-4 ms-md-250"
-          style={{ marginTop: "60px" }} // Keep marginTop for navbar offset
+          style={{ marginTop: "60px" }}
         >
           <h2
             className="fw-bold"
             style={{ fontSize: "24px", color: "#1a2e5a" }}
           >
-            My Orders
+            {t("buyerOrders.title")}
           </h2>
           <p
             className="text-muted"
             style={{ fontSize: "14px", color: "#6c757d" }}
           >
-            Track and manage your purchases
+            {t("buyerOrders.subtitle")}
           </p>
 
           <div className="bg-white p-4 rounded shadow-sm">
-            <h5 className="mb-3">Order History</h5>
+            <h5 className="mb-3">{t("buyerOrders.historyTitle")}</h5>
 
-            {/* Tabs for order filtering */}
-            <ul className="nav nav-pills mb-4">
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "All Orders" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("All Orders")}
-                >
-                  All Orders
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "Pending" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("Pending")}
-                >
-                  Pending
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "Shipped" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("Shipped")}
-                >
-                  Shipped
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "Delivered" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("Delivered")}
-                >
-                  Delivered
-                </button>
-              </li>
+            {/* === STATUS TABS === */}
+            <ul className="nav nav-pills mb-4 flex-wrap">
+              {tabs.map((tab) => (
+                <li className="nav-item" key={tab}>
+                  <button
+                    className={`nav-link ${
+                      activeTab === tab ? "bg-success text-white" : ""
+                    }`}
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {t(`buyerOrders.tabs.${tab}`)}
+                  </button>
+                </li>
+              ))}
             </ul>
 
-            {/* Search and Date Filter Section */}
-            <div className="mb-4 d-flex align-items-center">
-              <input
-                type="text"
-                className="form-control me-3"
-                style={{
-                  width: "250px",
-                  fontSize: "14px",
-                  color: "#495057",
-                  borderColor: "#ced4da",
-                  padding: "6px 12px",
-                  borderRadius: "4px",
-                }}
-                placeholder="Search orders..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+            {/* === SEARCH + DATE FILTER === */}
+            <div className="mb-4 d-flex gap-2 align-items-center">
+              <div
+                className="position-relative flex-grow-1"
+                style={{ maxWidth: "300px" }}
+              >
+                <input
+                  type="text"
+                  className="form-control ps-5"
+                  placeholder={t("buyerOrders.searchPlaceholder")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <FontAwesomeIcon
+                  icon={faSearch}
+                  className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
+                  style={{ fontSize: "14px" }}
+                />
+              </div>
               <input
                 type="date"
                 className="form-control"
-                style={{
-                  width: "150px",
-                  fontSize: "14px",
-                  color: "#495057",
-                  borderColor: "#ced4da",
-                  padding: "6px 12px",
-                  borderRadius: "4px",
-                }}
+                style={{ width: "160px" }}
                 value={dateFilter.startDate}
-                onChange={(e) =>
-                  setDateFilter({ ...dateFilter, startDate: e.target.value })
-                }
+                onChange={(e) => setDateFilter({ startDate: e.target.value })}
               />
             </div>
 
-            {/* List of Order Cards */}
+            {/* === ORDER LIST === */}
             <div className="order-list">
-              {filteredOrders.length > 0 ? (
+              {loading ? (
+                <div className="text-center py-5">
+                  <div className="spinner-border text-success" role="status">
+                    <span className="visually-hidden">
+                      {t("buyerOrders.loading")}
+                    </span>
+                  </div>
+                  <p className="text-muted mt-2">
+                    {t("buyerOrders.loadingText")}
+                  </p>
+                </div>
+              ) : filteredOrders.length > 0 ? (
                 filteredOrders.map((order) => (
                   <OrderCard
                     key={order.id}
                     order={order}
                     onViewDetails={handleOpenDetailModal}
+                    getStatusBadge={getStatusBadge}
                   />
                 ))
               ) : (
-                <p className="text-muted text-center mt-5">
-                  No orders found for this filter.
+                <p className="text-center text-muted py-5">
+                  {t("buyerOrders.noOrders")}
                 </p>
               )}
             </div>
@@ -275,15 +262,15 @@ const OrdersPage = () => {
         </div>
       </div>
 
-      {/* Order Detail Modal: Its visibility is controlled by isDetailModalVisible */}
+      {/* === MODALS === */}
       <OrderDetailModal
         isVisible={isDetailModalVisible}
         order={selectedOrder}
         onClose={handleCloseDetailModal}
         onCancelOrder={handleCancelOrder}
+        getStatusBadge={getStatusBadge}
       />
 
-      {/* Success Modal (assuming StylishModal is available) */}
       <StylishModal
         isVisible={isSuccessModalVisible}
         message={successMessage}
@@ -291,7 +278,6 @@ const OrdersPage = () => {
         onClose={handleCloseSuccessModal}
       />
 
-      {/* Cancel Reason Modal */}
       <CancelReasonModal
         show={isCancelReasonModalVisible}
         onClose={() => setCancelReasonModalVisible(false)}

@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from "react";
+// ─────────────────────────────────────────────────────────────────────────────
+//  RegistrationPage.jsx – Farmer: Bank Details for Chapa Payout (Backend Sync)
+// ─────────────────────────────────────────────────────────────────────────────
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User,
@@ -11,13 +14,27 @@ import {
   EyeOff,
   CheckCircle,
   AlertCircle,
+  ChevronDown,
+  Home,
+  Trees,
+  Building2,
+  CreditCard,
+  UserCheck,
 } from "lucide-react";
 import logoGreen from "../assets/logoGreen.png";
-import axios from "axios";
+import apiClient from "../api/api";
 import { useTranslation } from "react-i18next";
 
 export default function RegistrationPage() {
   const { t, i18n } = useTranslation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // ── Bank states ──
+  const [banks, setBanks] = useState([]);
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [accountLengthError, setAccountLengthError] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -26,41 +43,135 @@ export default function RegistrationPage() {
     password: "",
     confirmPassword: "",
     role: "",
+    farmName: "",
+    farmLocation: "",
+    bankId: "",
+    accountNumber: "",
+    accountName: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState(
     localStorage.getItem("userLanguage") || "en"
   );
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const langRef = useRef(null);
   const navigate = useNavigate();
 
-  // Handle language change
-  const handleLanguageSelect = (value) => {
-    i18n.changeLanguage(value);
-    setSelectedLanguage(value);
-    localStorage.setItem("userLanguage", value);
+  // ────────────────────── Language handling ──────────────────────
+  const languages = [
+    { code: "en", label: t("settings.languageList.english"), flag: "UK" },
+    { code: "am", label: t("settings.languageList.amharic"), flag: "Ethiopia" },
+    { code: "om", label: t("settings.languageList.oromo"), flag: "Oromia" },
+  ];
+
+  const handleLanguageSelect = (lang) => {
+    i18n.changeLanguage(lang.code);
+    setSelectedLanguage(lang.code);
+    localStorage.setItem("userLanguage", lang.code);
+    setIsLangOpen(false);
   };
 
-  // Handle form field changes
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (langRef.current && !langRef.current.contains(e.target)) {
+        setIsLangOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ────────────────────── Fetch Chapa Banks (Backend Route) ──────────────────────
+  useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        const res = await apiClient.get("/auth/chapa/banks"); // ← Matches authRoutes
+        setBanks(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to load banks:", err);
+        setErrors({ general: t("errors.bankLoadFailed") });
+      }
+    };
+
+    if (formData.role === "Farmer") {
+      fetchBanks();
+    } else {
+      setBanks([]);
+      setSelectedBank(null);
+    }
+  }, [formData.role, t]);
+
+  // ────────────────────── Validate Account Length ──────────────────────
+  useEffect(() => {
+    if (!formData.accountNumber || !selectedBank) {
+      setAccountLengthError("");
+      return;
+    }
+
+    const digitsOnly = formData.accountNumber.replace(/\D/g, "");
+    const expected = selectedBank.acct_length;
+    const actual = digitsOnly.length;
+
+    if (actual !== expected) {
+      setAccountLengthError(t("errors.accountLength", { expected, actual }));
+    } else {
+      setAccountLengthError("");
+    }
+  }, [formData.accountNumber, selectedBank, t]);
+
+  // ────────────────────── Form handling ──────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Reset dependent fields
     if (name === "role" && value === "Farmer") {
-      setFormData((prev) => ({ ...prev, role: value, email: "" }));
+      setFormData((prev) => ({
+        ...prev,
+        role: value,
+        email: "",
+        farmName: prev.farmName,
+        farmLocation: prev.farmLocation,
+      }));
+    } else if (name === "role" && value === "Buyer") {
+      setFormData((prev) => ({
+        ...prev,
+        role: value,
+        farmName: "",
+        farmLocation: "",
+        bankId: "",
+        accountNumber: "",
+        accountName: "",
+      }));
+      setSelectedBank(null);
+    } else if (name === "bankId") {
+      const bank = banks.find((b) => b.id === parseInt(value));
+      setSelectedBank(bank);
+      setFormData((prev) => ({ ...prev, bankId: value }));
+    } else if (name === "accountNumber") {
+      // Only allow digits
+      const digits = value.replace(/\D/g, "");
+      setFormData((prev) => ({ ...prev, accountNumber: digits }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    // Clear error
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+    if (name === "accountNumber") {
+      setAccountLengthError("");
+    }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
-    // Validate required fields
+    // Common validation
     if (!formData.name.trim()) newErrors.name = t("errors.required");
     if (!formData.phone.trim()) newErrors.phone = t("errors.required");
     if (!formData.location.trim()) newErrors.location = t("errors.required");
@@ -69,19 +180,31 @@ export default function RegistrationPage() {
       newErrors.confirmPassword = t("errors.required");
     if (!formData.role) newErrors.role = t("errors.required");
 
-    // Additional validations
     if (formData.phone && !/^\d{10}$/.test(formData.phone)) {
       newErrors.phone = t("errors.invalidPhone");
     }
+
     if (formData.password && formData.password.length < 6) {
       newErrors.password = t("errors.passwordMin6");
     }
-    if (
-      formData.password &&
-      formData.confirmPassword &&
-      formData.password !== formData.confirmPassword
-    ) {
+    if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = t("errors.passwordMismatch");
+    }
+
+    // Farmer-specific
+    if (formData.role === "Farmer") {
+      if (!formData.farmName.trim()) newErrors.farmName = t("errors.required");
+      if (!formData.farmLocation.trim())
+        newErrors.farmLocation = t("errors.required");
+      if (!formData.bankId) newErrors.bankId = t("errors.required");
+      if (!formData.accountNumber.trim())
+        newErrors.accountNumber = t("errors.required");
+      if (!formData.accountName.trim())
+        newErrors.accountName = t("errors.required");
+
+      if (accountLengthError) {
+        newErrors.accountNumber = accountLengthError;
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -91,45 +214,65 @@ export default function RegistrationPage() {
 
     setIsSubmitting(true);
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        formData
-      );
+      const payload = {
+        name: formData.name.trim(),
+        phone: formData.phone,
+        location: formData.location.trim(),
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        role: formData.role,
+        ...(formData.role === "Buyer" &&
+          formData.email && { email: formData.email.trim() }),
+        ...(formData.role === "Farmer" && {
+          farmName: formData.farmName.trim(),
+          farmLocation: formData.farmLocation.trim(),
+          chapaBankId: parseInt(formData.bankId),
+          accountNumber: formData.accountNumber,
+          accountName: formData.accountName.trim(),
+        }),
+      };
+
+      await apiClient.post("/auth/register", payload); // ← Matches authRoutes
       setSuccess(t("auth.signupSuccess"));
       setErrors({});
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      setErrors({
-        general: err.response?.data?.message || t("auth.signupFailed"),
-      });
+      const message = err.response?.data?.message || t("auth.signupFailed");
+      setErrors({ general: message });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Clear messages after 3 seconds
+  // Clear toasts
   useEffect(() => {
-    if (errors.general || Object.keys(errors).length > 0 || success) {
+    if (success || errors.general) {
       const timer = setTimeout(() => {
-        setErrors({});
         setSuccess(null);
+        setErrors((prev) => ({ ...prev, general: "" }));
       }, 3000);
       return () => clearTimeout(timer);
     }
-    if (selectedLanguage && ["en", "am", "om"].includes(selectedLanguage)) {
+  }, [success, errors.general]);
+
+  useEffect(() => {
+    if (["en", "am", "om"].includes(selectedLanguage)) {
       i18n.changeLanguage(selectedLanguage);
     }
-  }, [errors, success, selectedLanguage, i18n]);
+  }, [selectedLanguage, i18n]);
 
+  // ────────────────────── JSX ──────────────────────
   return (
     <div
-      className="d-flex align-items-center justify-content-center min-vh-100 position-relative"
+      className="d-flex align-items-center justify-content-center position-relative"
       style={{
+        minHeight: "100vh",
         background: "linear-gradient(145deg, #d4f1d8, #ffffff, #e8f5e9)",
         overflow: "hidden",
+        padding: "1rem 0",
       }}
     >
-      {/* Decorative organic shapes */}
+      {/* Decorative blobs */}
       <div
         className="position-absolute rounded-circle animate-pulse"
         style={{
@@ -140,7 +283,7 @@ export default function RegistrationPage() {
           left: "-100px",
           filter: "blur(90px)",
         }}
-      ></div>
+      />
       <div
         className="position-absolute rounded-circle animate-pulse"
         style={{
@@ -151,518 +294,585 @@ export default function RegistrationPage() {
           right: "-100px",
           filter: "blur(90px)",
         }}
-      ></div>
+      />
 
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-12 col-md-7 col-lg-5">
-            {/* Logo & Title */}
-            <div className="d-flex align-items-center justify-content-center mb-5 animate-slideInDown">
-              <img
-                src={logoGreen}
-                alt="AgriLink logo"
-                className="img-fluid"
-                style={{ maxWidth: "80px", transition: "transform 0.3s ease" }}
-                onMouseEnter={(e) => (e.target.style.transform = "scale(1.1)")}
-                onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
-              />
-              <h1
-                className="ms-3 fw-bold text-success"
-                style={{ fontSize: "2rem" }}
-              >
-                {t("app.title")}
-              </h1>
-            </div>
-
-            {/* Glassmorphism Card */}
-            <div
-              className="card border-0 shadow-lg animate-slideInUp"
-              style={{
-                borderRadius: "24px",
-                background: "rgba(255, 255, 255, 0.15)",
-                backdropFilter: "blur(15px)",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
-                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-              }}
+      <div className="container" style={{ maxWidth: "420px" }}>
+        <div className="text-center mb-3">
+          <div className="d-flex align-items-center justify-content-center mb-2">
+            <img
+              src={logoGreen}
+              alt="AgriLink logo"
+              className="img-fluid"
+              style={{ width: "60px", height: "60px" }}
+            />
+            <h1
+              className="ms-2 fw-bold text-success"
+              style={{ fontSize: "1.6rem" }}
             >
-              <div className="card-body p-5">
-                {/* Language Selector */}
+              AgriLink Ethiopia
+            </h1>
+          </div>
+        </div>
+
+        {/* Glassmorphic Card */}
+        <div
+          className="card border-0 shadow-lg"
+          style={{
+            borderRadius: "24px",
+            background: "rgba(255, 255, 255, 0.18)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+          }}
+        >
+          <div className="card-body p-4">
+            {/* Language selector */}
+            <div className="mb-3 position-relative" ref={langRef}>
+              <button
+                type="button"
+                className="btn btn-outline-success rounded-pill w-100 d-flex align-items-center justify-content-center gap-2"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                style={{
+                  fontSize: "0.9rem",
+                  padding: "0.5rem 1rem",
+                  borderColor: "#2ecc71",
+                }}
+              >
+                <Globe size={18} />
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${
+                    isLangOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isLangOpen && (
                 <div
-                  className="mb-4 animate-fadeIn"
-                  style={{ animationDelay: "0.1s" }}
+                  className="position-absolute start-0 end-0 mt-1 bg-white rounded-3 shadow-lg border"
+                  style={{
+                    zIndex: 1000,
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                    top: "100%",
+                  }}
                 >
-                  <label className="form-label fw-semibold text-dark d-flex align-items-center">
-                    <Globe size={18} className="me-2" />
-                    {t("common.language")}
-                  </label>
-                  <select
-                    className="form-select form-select-sm rounded-pill custom-dropdown"
-                    value={selectedLanguage}
-                    onChange={(e) => handleLanguageSelect(e.target.value)}
-                    aria-label={t("common.language")}
-                    style={{
-                      background: "rgba(255, 255, 255, 0.9)",
-                      border: "1px solid #2ecc71",
-                      transition: "all 0.3s ease",
-                      paddingRight: "2.5rem",
-                    }}
-                  >
-                    <option value="en">
-                      {t("settings.languageList.english")}
-                    </option>
-                    <option value="am">
-                      {t("settings.languageList.amharic")}
-                    </option>
-                    <option value="om">
-                      {t("settings.languageList.oromo")}
-                    </option>
-                  </select>
-                </div>
-
-                {/* Heading */}
-                <h4
-                  className="fw-bold text-dark mb-2 animate-fadeIn"
-                  style={{ animationDelay: "0.2s" }}
-                >
-                  {t("auth.signupTitle")}
-                </h4>
-                <p
-                  className="text-muted small mb-4 animate-fadeIn"
-                  style={{ animationDelay: "0.3s" }}
-                >
-                  {t("auth.enterDetails")}
-                </p>
-
-                {/* Form */}
-                <form onSubmit={handleSubmit} noValidate>
-                  {/* Full Name */}
-                  <div
-                    className="mb-4 animate-fadeIn"
-                    style={{ animationDelay: "0.4s" }}
-                  >
-                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
-                      <User size={18} className="me-2" />
-                      {t("common.fullName")}
-                    </label>
-                    <div className="input-group">
-                      <span
-                        className="input-group-text bg-white border-end-0"
-                        style={{ borderColor: "#2ecc71" }}
-                      >
-                        <User size={18} className="text-success" />
-                      </span>
-                      <input
-                        name="name"
-                        type="text"
-                        className="form-control rounded-end-pill"
-                        placeholder={t("common.fullNamePlaceholder")}
-                        value={formData.name}
-                        onChange={handleChange}
-                        aria-label={t("common.fullName")}
-                        aria-describedby={
-                          errors.name ? "name-error" : undefined
-                        }
-                        style={{
-                          background: "rgba(255, 255, 255, 0.9)",
-                          border: "1px solid #2ecc71",
-                          transition: "all 0.3s ease",
-                        }}
-                      />
-                    </div>
-                    {errors.name && (
-                      <div className="text-danger small mt-1" id="name-error">
-                        {errors.name}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Role Selector */}
-                  <div
-                    className="mb-4 animate-fadeIn"
-                    style={{ animationDelay: "0.5s" }}
-                  >
-                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
-                      <User size={18} className="me-2" />
-                      {t("common.role")}
-                    </label>
-                    <div className="d-flex gap-3">
-                      <div className="form-check custom-radio">
-                        <input
-                          type="radio"
-                          name="role"
-                          id="farmer"
-                          value="Farmer"
-                          className="form-check-input"
-                          checked={formData.role === "Farmer"}
-                          onChange={handleChange}
-                          aria-label={t("roles.farmer")}
-                          aria-describedby={
-                            errors.role ? "role-error" : undefined
-                          }
-                        />
-                        <label
-                          htmlFor="farmer"
-                          className="form-check-label d-flex align-items-center custom-radio-label"
-                          style={{
-                            background: "rgba(255, 255, 255, 0.9)",
-                            border: "1px solid #2ecc71",
-                            borderRadius: "20px",
-                            padding: "8px 12px",
-                            transition: "all 0.3s ease",
-                          }}
-                        >
-                          {t("roles.farmer")}
-                        </label>
-                      </div>
-                      <div className="form-check custom-radio">
-                        <input
-                          type="radio"
-                          name="role"
-                          id="buyer"
-                          value="Buyer"
-                          className="form-check-input"
-                          checked={formData.role === "Buyer"}
-                          onChange={handleChange}
-                          aria-label={t("roles.buyer")}
-                          aria-describedby={
-                            errors.role ? "role-error" : undefined
-                          }
-                        />
-                        <label
-                          htmlFor="buyer"
-                          className="form-check-label d-flex align-items-center custom-radio-label"
-                          style={{
-                            background: "rgba(255, 255, 255, 0.9)",
-                            border: "1px solid #2ecc71",
-                            borderRadius: "20px",
-                            padding: "8px 12px",
-                            transition: "all 0.3s ease",
-                          }}
-                        >
-                          {t("roles.buyer")}
-                        </label>
-                      </div>
-                    </div>
-                    {errors.role && (
-                      <div className="text-danger small mt-1" id="role-error">
-                        {errors.role}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Phone */}
-                  <div
-                    className="mb-4 animate-fadeIn"
-                    style={{ animationDelay: "0.6s" }}
-                  >
-                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
-                      <Phone size={18} className="me-2" />
-                      {t("common.phone")}
-                    </label>
-                    <div className="input-group">
-                      <span
-                        className="input-group-text bg-white border-end-0"
-                        style={{ borderColor: "#2ecc71" }}
-                      >
-                        <Phone size={18} className="text-success" />
-                      </span>
-                      <input
-                        name="phone"
-                        type="tel"
-                        className="form-control rounded-end-pill"
-                        placeholder={t("common.phonePlaceholder")}
-                        value={formData.phone}
-                        onChange={handleChange}
-                        aria-label={t("common.phone")}
-                        aria-describedby={
-                          errors.phone ? "phone-error" : undefined
-                        }
-                        style={{
-                          background: "rgba(255, 255, 255, 0.9)",
-                          border: "1px solid #2ecc71",
-                          transition: "all 0.3s ease",
-                        }}
-                      />
-                    </div>
-                    {errors.phone && (
-                      <div className="text-danger small mt-1" id="phone-error">
-                        {errors.phone}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Email */}
-                  {formData.role === "Buyer" && (
-                    <div
-                      className="mb-4 animate-fadeIn"
-                      style={{ animationDelay: "0.7s" }}
-                    >
-                      <label className="form-label fw-semibold text-dark d-flex align-items-center">
-                        <Mail size={18} className="me-2" />
-                        {t("common.email")}
-                      </label>
-                      <div className="input-group">
-                        <span
-                          className="input-group-text bg-white border-end-0"
-                          style={{ borderColor: "#2ecc71" }}
-                        >
-                          <Mail size={18} className="text-success" />
-                        </span>
-                        <input
-                          name="email"
-                          type="email"
-                          className="form-control rounded-end-pill"
-                          placeholder={t("common.emailPlaceholder")}
-                          value={formData.email}
-                          onChange={handleChange}
-                          aria-label={t("common.email")}
-                          style={{
-                            background: "rgba(255, 255, 255, 0.9)",
-                            border: "1px solid #2ecc71",
-                            transition: "all 0.3s ease",
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Location */}
-                  <div
-                    className="mb-4 animate-fadeIn"
-                    style={{
-                      animationDelay:
-                        formData.role === "Buyer" ? "0.8s" : "0.7s",
-                    }}
-                  >
-                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
-                      <MapPin size={18} className="me-2" />
-                      {t("common.location")}
-                    </label>
-                    <div className="input-group">
-                      <span
-                        className="input-group-text bg-white border-end-0"
-                        style={{ borderColor: "#2ecc71" }}
-                      >
-                        <MapPin size={18} className="text-success" />
-                      </span>
-                      <input
-                        name="location"
-                        type="text"
-                        className="form-control rounded-end-pill"
-                        placeholder={t("cities.addisAbaba")}
-                        value={formData.location}
-                        onChange={handleChange}
-                        aria-label={t("common.location")}
-                        aria-describedby={
-                          errors.location ? "location-error" : undefined
-                        }
-                        style={{
-                          background: "rgba(255, 255, 255, 0.9)",
-                          border: "1px solid #2ecc71",
-                          transition: "all 0.3s ease",
-                        }}
-                      />
-                    </div>
-                    {errors.location && (
-                      <div
-                        className="text-danger small mt-1"
-                        id="location-error"
-                      >
-                        {errors.location}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Password */}
-                  <div
-                    className="mb-4 animate-fadeIn"
-                    style={{
-                      animationDelay:
-                        formData.role === "Buyer" ? "0.9s" : "0.8s",
-                    }}
-                  >
-                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
-                      <Lock size={18} className="me-2" />
-                      {t("auth.password")}
-                    </label>
-                    <div className="input-group">
-                      <span
-                        className="input-group-text bg-white border-end-0"
-                        style={{ borderColor: "#2ecc71" }}
-                      >
-                        <Lock size={18} className="text-success" />
-                      </span>
-                      <input
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        className="form-control"
-                        placeholder="********"
-                        value={formData.password}
-                        onChange={handleChange}
-                        aria-label={t("auth.password")}
-                        aria-describedby={
-                          errors.password ? "password-error" : undefined
-                        }
-                        style={{
-                          background: "rgba(255, 255, 255, 0.9)",
-                          border: "1px solid #2ecc71",
-                          transition: "all 0.3s ease",
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-outline-success rounded-start-0 rounded-pill"
-                        onClick={() => setShowPassword(!showPassword)}
-                        aria-label={
-                          showPassword
-                            ? t("settings.password.hide")
-                            : t("settings.password.show")
-                        }
-                      >
-                        {showPassword ? (
-                          <EyeOff size={18} />
-                        ) : (
-                          <Eye size={18} />
-                        )}
-                      </button>
-                    </div>
-                    {errors.password && (
-                      <div
-                        className="text-danger small mt-1"
-                        id="password-error"
-                      >
-                        {errors.password}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Confirm Password */}
-                  <div
-                    className="mb-4 animate-fadeIn"
-                    style={{
-                      animationDelay:
-                        formData.role === "Buyer" ? "1.0s" : "0.9s",
-                    }}
-                  >
-                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
-                      <Lock size={18} className="me-2" />
-                      {t("auth.confirmPassword")}
-                    </label>
-                    <div className="input-group">
-                      <span
-                        className="input-group-text bg-white border-end-0"
-                        style={{ borderColor: "#2ecc71" }}
-                      >
-                        <Lock size={18} className="text-success" />
-                      </span>
-                      <input
-                        name="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        className="form-control"
-                        placeholder="********"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        aria-label={t("auth.confirmPassword")}
-                        aria-describedby={
-                          errors.confirmPassword
-                            ? "confirmPassword-error"
-                            : undefined
-                        }
-                        style={{
-                          background: "rgba(255, 255, 255, 0.9)",
-                          border: "1px solid #2ecc71",
-                          transition: "all 0.3s ease",
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-outline-success rounded-start-0 rounded-pill"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
-                        aria-label={
-                          showConfirmPassword
-                            ? t("settings.password.hide")
-                            : t("settings.password.show")
-                        }
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff size={18} />
-                        ) : (
-                          <Eye size={18} />
-                        )}
-                      </button>
-                    </div>
-                    {errors.confirmPassword && (
-                      <div
-                        className="text-danger small mt-1"
-                        id="confirmPassword-error"
-                      >
-                        {errors.confirmPassword}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Register Button */}
-                  <div
-                    className="d-grid mb-4 animate-fadeIn"
-                    style={{
-                      animationDelay:
-                        formData.role === "Buyer" ? "1.1s" : "1.0s",
-                    }}
-                  >
+                  {languages.map((lang) => (
                     <button
-                      type="submit"
-                      className="btn fw-semibold text-white position-relative"
-                      disabled={isSubmitting}
+                      key={lang.code}
+                      type="button"
+                      className="w-100 text-start px-3 py-2 border-0 bg-transparent hover-bg-light-success d-flex align-items-center gap-2"
+                      onClick={() => handleLanguageSelect(lang)}
                       style={{
-                        borderRadius: "30px",
-                        background: "linear-gradient(45deg, #2ecc71, #27ae60)",
-                        padding: "12px",
-                        transition: "all 0.3s ease",
-                        overflow: "hidden",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.transform = "scale(1.05)";
-                        e.target.style.background =
-                          "linear-gradient(45deg, #27ae60, #219653)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = "scale(1)";
-                        e.target.style.background =
-                          "linear-gradient(45deg, #2ecc71, #27ae60)";
+                        fontSize: "0.9rem",
+                        backgroundColor:
+                          selectedLanguage === lang.code
+                            ? "#d4f1d8"
+                            : "transparent",
                       }}
                     >
-                      {isSubmitting ? (
-                        <span
-                          className="spinner-border spinner-border-sm me-2"
-                          role="status"
-                          aria-hidden="true"
-                        ></span>
-                      ) : null}
-                      {isSubmitting ? t("common.updating") : t("auth.signup")}
+                      <span className="fw-bold">{lang.flag}</span>
+                      {lang.label}
                     </button>
-                  </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-                  {/* Login Link */}
-                  <p
-                    className="text-center text-muted small animate-fadeIn"
+            <h4 className="fw-bold text-dark mb-1">{t("auth.signupTitle")}</h4>
+            <p className="text-muted small mb-3">{t("auth.enterDetails")}</p>
+
+            <form onSubmit={handleSubmit} noValidate>
+              {/* Full Name */}
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                  <User size={16} className="me-1" />
+                  {t("common.fullName")}
+                </label>
+                <div className="input-group">
+                  <span
+                    className="input-group-text bg-white border-end-0"
+                    style={{ borderColor: errors.name ? "#dc3545" : "#2ecc71" }}
+                  >
+                    <User
+                      size={16}
+                      className={errors.name ? "text-danger" : ""}
+                    />
+                  </span>
+                  <input
+                    type="text"
+                    name="name"
+                    className={`form-control rounded-end-pill ${
+                      errors.name ? "is-invalid" : ""
+                    }`}
+                    placeholder={t("common.fullNamePlaceholder")}
+                    value={formData.name}
+                    onChange={handleChange}
+                    style={{ fontSize: "0.9rem" }}
+                  />
+                </div>
+                {errors.name && (
+                  <div className="invalid-feedback d-block">{errors.name}</div>
+                )}
+              </div>
+
+              {/* Role */}
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                  <User size={16} className="me-1" />
+                  {t("common.role")}
+                </label>
+                <div className="d-flex gap-2">
+                  {["Farmer", "Buyer"].map((r) => (
+                    <div className="form-check" key={r}>
+                      <input
+                        type="radio"
+                        name="role"
+                        id={r.toLowerCase()}
+                        value={r}
+                        className="btn-check"
+                        checked={formData.role === r}
+                        onChange={handleChange}
+                      />
+                      <label
+                        htmlFor={r.toLowerCase()}
+                        className={`btn rounded-pill px-3 py-1 ${
+                          errors.role
+                            ? "btn-outline-danger"
+                            : "btn-outline-success"
+                        }`}
+                        style={{ fontSize: "0.85rem" }}
+                      >
+                        {t(`roles.${r.toLowerCase()}`)}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                {errors.role && (
+                  <div className="text-danger small mt-1">{errors.role}</div>
+                )}
+              </div>
+
+              {/* Phone */}
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                  <Phone size={16} className="me-1" />
+                  {t("common.phone")}
+                </label>
+                <div className="input-group">
+                  <span
+                    className="input-group-text bg-white border-end-0"
                     style={{
-                      animationDelay:
-                        formData.role === "Buyer" ? "1.2s" : "1.1s",
+                      borderColor: errors.phone ? "#dc3545" : "#2ecc71",
                     }}
                   >
-                    {t("auth.haveAccount")}{" "}
-                    <Link
-                      to="/login"
-                      className="text-success fw-medium text-decoration-none hover-underline"
-                    >
-                      {t("auth.login")}
-                    </Link>
-                  </p>
-                </form>
+                    <Phone
+                      size={16}
+                      className={errors.phone ? "text-danger" : ""}
+                    />
+                  </span>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className={`form-control rounded-end-pill ${
+                      errors.phone ? "is-invalid" : ""
+                    }`}
+                    placeholder={t("common.phonePlaceholder")}
+                    value={formData.phone}
+                    onChange={handleChange}
+                    style={{ fontSize: "0.9rem" }}
+                  />
+                </div>
+                {errors.phone && (
+                  <div className="invalid-feedback d-block">{errors.phone}</div>
+                )}
               </div>
-            </div>
+
+              {/* Email (Buyer only) */}
+              {formData.role === "Buyer" && (
+                <div className="mb-3">
+                  <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                    <Mail size={16} className="me-1" />
+                    {t("common.email")}
+                  </label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-white border-end-0">
+                      <Mail size={16} className="text-success" />
+                    </span>
+                    <input
+                      type="email"
+                      name="email"
+                      className="form-control rounded-end-pill"
+                      placeholder={t("common.emailPlaceholder")}
+                      value={formData.email}
+                      onChange={handleChange}
+                      style={{ fontSize: "0.9rem" }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Farmer Fields */}
+              {formData.role === "Farmer" && (
+                <>
+                  {/* Farm Name */}
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                      <Home size={16} className="me-1" />
+                      {t("farmer.farmName")}
+                    </label>
+                    <div className="input-group">
+                      <span
+                        className="input-group-text bg-white border-end-0"
+                        style={{
+                          borderColor: errors.farmName ? "#dc3545" : "#2ecc71",
+                        }}
+                      >
+                        <Home
+                          size={16}
+                          className={errors.farmName ? "text-danger" : ""}
+                        />
+                      </span>
+                      <input
+                        type="text"
+                        name="farmName"
+                        className={`form-control rounded-end-pill ${
+                          errors.farmName ? "is-invalid" : ""
+                        }`}
+                        placeholder={t("farmer.farmNamePlaceholder")}
+                        value={formData.farmName}
+                        onChange={handleChange}
+                        style={{ fontSize: "0.9rem" }}
+                      />
+                    </div>
+                    {errors.farmName && (
+                      <div className="invalid-feedback d-block">
+                        {errors.farmName}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Farm Location */}
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                      <Trees size={16} className="me-1" />
+                      {t("farmer.farmLocation")}
+                    </label>
+                    <div className="input-group">
+                      <span
+                        className="input-group-text bg-white border-end-0"
+                        style={{
+                          borderColor: errors.farmLocation
+                            ? "#dc3545"
+                            : "#2ecc71",
+                        }}
+                      >
+                        <Trees
+                          size={16}
+                          className={errors.farmLocation ? "text-danger" : ""}
+                        />
+                      </span>
+                      <input
+                        type="text"
+                        name="farmLocation"
+                        className={`form-control rounded-end-pill ${
+                          errors.farmLocation ? "is-invalid" : ""
+                        }`}
+                        placeholder={t("farmer.farmLocationPlaceholder")}
+                        value={formData.farmLocation}
+                        onChange={handleChange}
+                        style={{ fontSize: "0.9rem" }}
+                      />
+                    </div>
+                    {errors.farmLocation && (
+                      <div className="invalid-feedback d-block">
+                        {errors.farmLocation}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bank */}
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                      <Building2 size={16} className="me-1" />
+                      {t("farmer.bank")}
+                    </label>
+                    <select
+                      name="bankId"
+                      className={`form-select rounded-pill ${
+                        errors.bankId ? "is-invalid" : ""
+                      }`}
+                      value={formData.bankId}
+                      onChange={handleChange}
+                      style={{ fontSize: "0.9rem" }}
+                    >
+                      <option value="">{t("farmer.selectBank")}</option>
+                      {banks.map((bank) => (
+                        <option key={bank.id} value={bank.id}>
+                          {bank.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.bankId && (
+                      <div className="invalid-feedback d-block">
+                        {errors.bankId}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Account Number */}
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                      <CreditCard size={16} className="me-1" />
+                      {t("farmer.accountNumber")}
+                    </label>
+                    <div className="input-group">
+                      <span
+                        className="input-group-text bg-white border-end-0"
+                        style={{
+                          borderColor: errors.accountNumber
+                            ? "#dc3545"
+                            : "#2ecc71",
+                        }}
+                      >
+                        <CreditCard
+                          size={16}
+                          className={errors.accountNumber ? "text-danger" : ""}
+                        />
+                      </span>
+                      <input
+                        type="text"
+                        name="accountNumber"
+                        className={`form-control rounded-end-pill ${
+                          errors.accountNumber ? "is-invalid" : ""
+                        }`}
+                        placeholder={t("farmer.accountNumberPlaceholder")}
+                        value={formData.accountNumber}
+                        onChange={handleChange}
+                        style={{ fontSize: "0.9rem" }}
+                      />
+                    </div>
+                    {errors.accountNumber && (
+                      <div className="invalid-feedback d-block">
+                        {errors.accountNumber}
+                      </div>
+                    )}
+                    {selectedBank && (
+                      <small className="text-muted">
+                        {t("farmer.accountLengthHint", {
+                          length: selectedBank.acct_length,
+                        })}
+                      </small>
+                    )}
+                  </div>
+
+                  {/* Account Name */}
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                      <UserCheck size={16} className="me-1" />
+                      {t("farmer.accountName")}
+                    </label>
+                    <div className="input-group">
+                      <span
+                        className="input-group-text bg-white border-end-0"
+                        style={{
+                          borderColor: errors.accountName
+                            ? "#dc3545"
+                            : "#2ecc71",
+                        }}
+                      >
+                        <UserCheck
+                          size={16}
+                          className={errors.accountName ? "text-danger" : ""}
+                        />
+                      </span>
+                      <input
+                        type="text"
+                        name="accountName"
+                        className={`form-control rounded-end-pill ${
+                          errors.accountName ? "is-invalid" : ""
+                        }`}
+                        placeholder={t("farmer.accountNamePlaceholder")}
+                        value={formData.accountName}
+                        onChange={handleChange}
+                        style={{ fontSize: "0.9rem" }}
+                      />
+                    </div>
+                    {errors.accountName && (
+                      <div className="invalid-feedback d-block">
+                        {errors.accountName}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* Personal Location */}
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                  <MapPin size={16} className="me-1" />
+                  {t("common.location")}
+                </label>
+                <div className="input-group">
+                  <span
+                    className="input-group-text bg-white border-end-0"
+                    style={{
+                      borderColor: errors.location ? "#dc3545" : "#2ecc71",
+                    }}
+                  >
+                    <MapPin
+                      size={16}
+                      className={errors.location ? "text-danger" : ""}
+                    />
+                  </span>
+                  <input
+                    type="text"
+                    name="location"
+                    className={`form-control rounded-end-pill ${
+                      errors.location ? "is-invalid" : ""
+                    }`}
+                    placeholder={t("cities.addisAbaba")}
+                    value={formData.location}
+                    onChange={handleChange}
+                    style={{ fontSize: "0.9rem" }}
+                  />
+                </div>
+                {errors.location && (
+                  <div className="invalid-feedback d-block">
+                    {errors.location}
+                  </div>
+                )}
+              </div>
+
+              {/* Password */}
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                  <Lock size={16} className="me-1" />
+                  {t("auth.password")}
+                </label>
+                <div className="input-group">
+                  <span
+                    className="input-group-text bg-white border-end-0"
+                    style={{
+                      borderColor: errors.password ? "#dc3545" : "#2ecc71",
+                    }}
+                  >
+                    <Lock
+                      size={16}
+                      className={errors.password ? "text-danger" : ""}
+                    />
+                  </span>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    className={`form-control ${
+                      errors.password ? "is-invalid" : ""
+                    }`}
+                    placeholder="********"
+                    value={formData.password}
+                    onChange={handleChange}
+                    style={{ fontSize: "0.9rem" }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-success rounded-start-0 rounded-pill"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <div className="invalid-feedback d-block">
+                    {errors.password}
+                  </div>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-dark d-flex align-items-center">
+                  <Lock size={16} className="me-1" />
+                  {t("auth.confirmPassword")}
+                </label>
+                <div className="input-group">
+                  <span
+                    className="input-group-text bg-white border-end-0"
+                    style={{
+                      borderColor: errors.confirmPassword
+                        ? "#dc3545"
+                        : "#2ecc71",
+                    }}
+                  >
+                    <Lock
+                      size={16}
+                      className={errors.confirmPassword ? "text-danger" : ""}
+                    />
+                  </span>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    className={`form-control ${
+                      errors.confirmPassword ? "is-invalid" : ""
+                    }`}
+                    placeholder="********"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    style={{ fontSize: "0.9rem" }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-success rounded-start-0 rounded-pill"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <div className="invalid-feedback d-block">
+                    {errors.confirmPassword}
+                  </div>
+                )}
+              </div>
+
+              {/* Submit */}
+              <div className="d-grid mb-3">
+                <button
+                  type="submit"
+                  className="btn text-white position-relative"
+                  disabled={isSubmitting}
+                  style={{
+                    borderRadius: "30px",
+                    background: "linear-gradient(45deg, #2ecc71, #27ae60)",
+                    padding: "0.65rem",
+                    fontSize: "0.95rem",
+                    fontWeight: "600",
+                  }}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" />
+                      {t("auth.registering")}
+                    </>
+                  ) : (
+                    t("auth.signup")
+                  )}
+                </button>
+              </div>
+
+              <p className="text-center text-muted small mb-0">
+                {t("auth.haveAccount")}{" "}
+                <Link
+                  to="/login"
+                  className="text-success fw-medium text-decoration-none hover-underline"
+                >
+                  {t("auth.login")}
+                </Link>
+              </p>
+            </form>
           </div>
         </div>
       </div>
@@ -675,8 +885,7 @@ export default function RegistrationPage() {
             background: "rgba(40, 167, 69, 0.95)",
             backdropFilter: "blur(5px)",
             zIndex: 1050,
-            borderRadius: "12px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
           }}
         >
           <CheckCircle size={18} className="me-2" />
@@ -690,8 +899,7 @@ export default function RegistrationPage() {
             background: "rgba(220, 53, 69, 0.95)",
             backdropFilter: "blur(5px)",
             zIndex: 1050,
-            borderRadius: "12px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
           }}
         >
           <AlertCircle size={18} className="me-2" />
@@ -699,113 +907,50 @@ export default function RegistrationPage() {
         </div>
       )}
 
-      <style>{`
-        @keyframes slideInDown {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes toastIn {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slideInDown { animation: slideInDown 0.6s ease forwards; }
-        .animate-slideInUp { animation: slideInUp 0.8s ease forwards; }
-        .animate-fadeIn { animation: fadeIn 0.6s ease forwards; }
-        .animate-toast-in { animation: toastIn 0.5s ease forwards; }
-        .form-control:focus, .form-select:focus {
-          border-color: #2ecc71 !important;
-          box-shadow: 0 0 8px rgba(46, 204, 113, 0.4) !important;
-          background: rgba(255, 255, 255, 1) !important;
-        }
-        .input-group-text {
-          background: rgba(255, 255, 255, 0.9) !important;
-          border-color: #2ecc71 !important;
-        }
-        .form-control, .form-select {
-          transition: all 0.3s ease;
-        }
-        .hover-underline {
-          position: relative;
-        }
-        .hover-underline:hover:after {
-          content: '';
+      {/* Inline CSS */}
+      <style jsx>{`
+        .hover-underline::after {
+          content: "";
           position: absolute;
-          width: 100%;
+          width: 0;
           height: 2px;
           bottom: -2px;
           left: 0;
           background: #2ecc71;
-          transform: scaleX(0);
-          transform-origin: bottom right;
-          transition: transform 0.3s ease;
+          transition: width 0.3s;
         }
-        .hover-underline:hover:after {
-          transform: scaleX(1);
-          transform-origin: bottom left;
+        .hover-underline:hover::after {
+          width: 100%;
         }
-        .spinner-border {
-          vertical-align: middle;
+        .transition-transform {
+          transition: transform 0.2s;
         }
-        .custom-radio-label {
-          cursor: pointer;
-          transition: all 0.3s ease;
+        .rotate-180 {
+          transform: rotate(180deg);
         }
-        .custom-radio-label:hover {
-          transform: scale(1.05);
-          background: rgba(46, 204, 113, 0.1) !important;
+        .hover-bg-light-success:hover {
+          background: #d4f1d8 !important;
         }
-        .form-check-input:checked + .custom-radio-label {
-          background: rgba(46, 204, 113, 0.2) !important;
-          border-color: #27ae60 !important;
+        @keyframes toastIn {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        .form-check-input:focus + .custom-radio-label {
-          box-shadow: 0 0 8px rgba(46, 204, 113, 0.4);
+        .animate-toast-in {
+          animation: toastIn 0.5s forwards;
         }
-        .custom-dropdown {
-          appearance: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232ecc71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-          background-position: right 1rem center;
-          background-size: 16px;
-        }
-        .custom-dropdown:hover {
-          transform: scale(1.02);
-        }
-        .custom-dropdown:focus {
-          transform: scale(1.02);
+        .btn-check:checked + .btn {
+          background: #2ecc71 !important;
+          color: #fff !important;
           border-color: #2ecc71 !important;
-          box-shadow: 0 0 8px rgba(46, 204, 113, 0.4) !important;
-          background: rgba(255, 255, 255, 1) !important;
         }
-        @media (max-width: 576px) {
-          .card-body {
-            padding: 1.5rem !important;
-          }
-          .col-md-7 {
-            padding: 0 1rem;
-          }
-          button, .form-select, .form-control {
-            font-size: 0.9rem;
-            padding: 10px;
-          }
-          .custom-radio-label {
-            padding: 6px 10px;
-            font-size: 0.9rem;
-          }
-          .custom-dropdown {
-            background-position: right 0.75rem center;
-            background-size: 14px;
-          }
+        .is-invalid {
+          border-color: #dc3545 !important;
         }
       `}</style>
     </div>

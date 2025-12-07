@@ -1,3 +1,4 @@
+// src/pages/SettingsPage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../Css/Devices.css";
@@ -6,6 +7,7 @@ import Sidebar from "../components/Sidebar";
 import StylishModal from "../components/StylishModal";
 import ConfirmationModal from "../components/ConfirmationModal";
 import FarmLocationModal from "../components/FarmLocationModal";
+import BankDetailsModal from "../components/BankDetailsModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPencilAlt,
@@ -15,30 +17,25 @@ import {
   faEyeSlash,
   faMapMarkerAlt,
   faPlusCircle,
+  faCheckCircle,
+  faEdit as faEditIcon,
 } from "@fortawesome/free-solid-svg-icons";
-import apiClient from "../../api/api"; // Import the api.js client
+import apiClient from "../../api/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "../../assets/Agriculture Loader.mp4";
 import { useTranslation } from "react-i18next";
 
-// Error Boundary Component
 class ErrorBoundary extends React.Component {
   state = { hasError: false };
-
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
-
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error) {
     const navigate = this.props.navigate;
     navigate("/error", { state: { error: error.message }, replace: true });
   }
-
   render() {
-    if (this.state.hasError) {
-      return null; // Component will redirect in componentDidCatch
-    }
-    return this.props.children;
+    return this.state.hasError ? null : this.props.children;
   }
 }
 
@@ -79,85 +76,108 @@ const SettingsPage = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  // BANK STATE
+  const [bankDetails, setBankDetails] = useState([]);
+  const [chapaBanks, setChapaBanks] = useState([]);
+  const [isBankModalOpen, setIsBankModalOpen] = useState(false);
+  const [editingBank, setEditingBank] = useState(null);
+
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const farmerId = user.id || "";
 
+  // FETCH DATA
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       setLoading(true);
-      console.log("Fetching user data, farmerId:", farmerId);
       try {
         const token = localStorage.getItem("token");
-        console.log("Token:", token);
         if (!token) {
-          console.log("No token, redirecting to login");
           navigate("/login", { replace: true });
           return;
         }
-        const response = await apiClient.get(`/settings/farmers/${farmerId}`);
-        console.log("API Response:", response.data);
+
+        // Profile
+        const profileRes = await apiClient.get(
+          `/settings/farmers/${farmerId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setProfileData({
-          fullName: response.data.farmerName || "",
-          phoneNumber: response.data.phoneNumber
-            ? `+251 ${response.data.phoneNumber}`
+          fullName: profileRes.data.farmerName || "",
+          phoneNumber: profileRes.data.phoneNumber
+            ? `+251 ${profileRes.data.phoneNumber}`
             : "",
-          location: response.data.location || "",
+          location: profileRes.data.location || "",
         });
+
+        // Bank Details
+        const bankRes = await apiClient.get(
+          `/settings/farmers/${farmerId}/bank`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setBankDetails(bankRes.data.bankDetails || []);
+
+        // Chapa Banks
+        try {
+          const chapaRes = await fetch(
+            "http://localhost:5000/api/auth/chapa/banks",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          if (chapaRes.ok) {
+            const data = await chapaRes.json();
+            setChapaBanks(data.data || []);
+          }
+        } catch (err) {
+          console.error("Failed to fetch Chapa banks:", err);
+          setChapaBanks([]);
+        }
+
         await fetchFarmLocations();
       } catch (err) {
-        console.error(
-          "Failed to fetch user data:",
-          err.response?.data || err.message
-        );
         navigate("/error", { state: { error: err.message }, replace: true });
       } finally {
         setLoading(false);
       }
     };
-    fetchUserData().catch((err) => {
-      console.error("Uncaught error in fetchUserData:", err);
-      navigate("/error", { state: { error: err.message }, replace: true });
-    });
+    fetchData();
   }, [navigate, farmerId]);
 
   const fetchFarmLocations = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token available");
-      const response = await apiClient.get(`/farmerlocations/${farmerId}`);
-      setFarmLocations(response.data.locations || []);
+      const res = await apiClient.get(`/farmerlocations/${farmerId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setFarmLocations(res.data.locations || []);
     } catch (err) {
       console.error("Failed to fetch farm locations:", err);
-      setModal({
-        isVisible: true,
-        message: t("settings.farmLocation.addError"),
-        type: "error",
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
+  // PROFILE
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProfileData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData((prevData) => ({ ...prevData, [name]: value }));
+    setProfileData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token available");
-      await apiClient.put(`/settings/farmers/${farmerId}`, {
-        farmerName: profileData.fullName,
-        phoneNumber: profileData.phoneNumber.replace("+251 ", ""),
-        location: profileData.location,
-      });
+      await apiClient.put(
+        `/settings/farmers/${farmerId}`,
+        {
+          farmerName: profileData.fullName,
+          phoneNumber: profileData.phoneNumber.replace("+251 ", ""),
+          location: profileData.location,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setIsEditing(false);
       setModal({
         isVisible: true,
@@ -165,7 +185,6 @@ const SettingsPage = () => {
         type: "success",
       });
     } catch (err) {
-      console.error("Failed to update profile:", err);
       setModal({
         isVisible: true,
         message: t("settings.profile.updateError"),
@@ -180,15 +199,6 @@ const SettingsPage = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token available");
-
-      setModal({ isVisible: false, message: "", type: "" });
-
-      console.log(
-        "Current Password Length:",
-        passwordData.currentPassword.length
-      );
-
       if (passwordData.currentPassword.length < 6) {
         setModal({
           isVisible: true,
@@ -198,7 +208,6 @@ const SettingsPage = () => {
         setLoading(false);
         return;
       }
-
       if (passwordData.newPassword !== passwordData.confirmPassword) {
         setModal({
           isVisible: true,
@@ -208,11 +217,14 @@ const SettingsPage = () => {
         setLoading(false);
         return;
       }
-
-      await apiClient.put(`/settings/farmers/${farmerId}/password`, {
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
-      });
+      await apiClient.put(
+        `/settings/farmers/${farmerId}/password`,
+        {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setModal({
         isVisible: true,
         message: t("settings.password.updateSuccess"),
@@ -224,7 +236,6 @@ const SettingsPage = () => {
         confirmPassword: "",
       });
     } catch (err) {
-      console.error("Failed to update password:", err);
       setModal({
         isVisible: true,
         message: t("settings.password.updateError"),
@@ -235,21 +246,24 @@ const SettingsPage = () => {
     }
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = () =>
     setModal({ isVisible: false, message: "", type: "" });
-  };
 
-  const handleAddFarmLocation = async (newLocation) => {
+  // FARM LOCATIONS
+  const handleAddFarmLocation = async (loc) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token available");
-      const response = await apiClient.post("/farmerlocations", {
-        farmerId,
-        farmName: newLocation.name,
-        farmLocation: newLocation.address,
-      });
-      setFarmLocations([...farmLocations, response.data.location]);
+      const res = await apiClient.post(
+        "/farmerlocations",
+        {
+          farmerId,
+          farmName: loc.name,
+          farmLocation: loc.address,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setFarmLocations((prev) => [...prev, res.data.location]);
       setIsFarmLocationModalVisible(false);
       setModal({
         isVisible: true,
@@ -257,7 +271,6 @@ const SettingsPage = () => {
         type: "success",
       });
     } catch (err) {
-      console.error("Failed to add farm location:", err);
       setModal({
         isVisible: true,
         message: t("settings.farmLocation.addError"),
@@ -268,36 +281,33 @@ const SettingsPage = () => {
     }
   };
 
-  const handleEditLocation = (index) => {
-    setEditingLocationIndex(index);
+  const handleEditLocation = (i) => {
+    setEditingLocationIndex(i);
     setEditedLocation({
-      ...farmLocations[index],
-      name: farmLocations[index].farmName,
-      address: farmLocations[index].farmLocation,
+      name: farmLocations[i].farmName,
+      address: farmLocations[i].farmLocation,
     });
     setIsFarmLocationModalVisible(true);
   };
 
-  const handleUpdateLocation = async (updatedLocation) => {
+  const handleUpdateLocation = async (loc) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token available");
-      const locationToUpdate = farmLocations[editingLocationIndex];
-      const response = await apiClient.put(
-        `/farmerlocations/${locationToUpdate.farmerLocationId}`,
+      const id = farmLocations[editingLocationIndex].farmerLocationId;
+      const res = await apiClient.put(
+        `/farmerlocations/${id}`,
         {
           farmerId,
-          farmName: updatedLocation.name,
-          farmLocation: updatedLocation.address,
-        }
+          farmName: loc.name,
+          farmLocation: loc.address,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      const updatedLocations = farmLocations.map((loc, i) =>
-        i === editingLocationIndex ? response.data.location : loc
+      setFarmLocations((prev) =>
+        prev.map((l, i) => (i === editingLocationIndex ? res.data.location : l))
       );
-      setFarmLocations(updatedLocations);
       setEditingLocationIndex(null);
-      setEditedLocation({ name: "", address: "" });
       setIsFarmLocationModalVisible(false);
       setModal({
         isVisible: true,
@@ -305,7 +315,6 @@ const SettingsPage = () => {
         type: "success",
       });
     } catch (err) {
-      console.error("Failed to update farm location:", err);
       setModal({
         isVisible: true,
         message: t("settings.farmLocation.updateError"),
@@ -316,24 +325,23 @@ const SettingsPage = () => {
     }
   };
 
-  const handleDeleteLocation = async (index) => {
+  const handleDeleteLocation = async (i) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token available");
-      const locationToDelete = farmLocations[index];
       await apiClient.delete(
-        `/farmerlocations/${locationToDelete.farmerLocationId}`
+        `/farmerlocations/${farmLocations[i].farmerLocationId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-      const updatedLocations = farmLocations.filter((_, i) => i !== index);
-      setFarmLocations(updatedLocations);
+      setFarmLocations((prev) => prev.filter((_, idx) => idx !== i));
       setModal({
         isVisible: true,
         message: t("settings.farmLocation.deleteSuccess"),
         type: "success",
       });
     } catch (err) {
-      console.error("Failed to delete farm location:", err);
       setModal({
         isVisible: true,
         message: t("settings.farmLocation.deleteError"),
@@ -348,12 +356,10 @@ const SettingsPage = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token available");
-      console.log("Attempting to delete account for farmerId:", farmerId);
-      const response = await apiClient.delete(`/settings/farmers/${farmerId}`);
-      console.log("Delete response:", response.data);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      await apiClient.delete(`/settings/farmers/${farmerId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      localStorage.clear();
       setModal({
         isVisible: true,
         message: t("settings.deleteAccount.success"),
@@ -361,10 +367,6 @@ const SettingsPage = () => {
       });
       setTimeout(() => navigate("/login", { replace: true }), 2000);
     } catch (err) {
-      console.error(
-        "Failed to delete account:",
-        err.response?.data || err.message
-      );
       setModal({
         isVisible: true,
         message: t("settings.deleteAccount.error"),
@@ -375,110 +377,58 @@ const SettingsPage = () => {
     }
   };
 
-  const togglePasswordVisibility = (field) => {
-    setShowPassword((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
+  const togglePasswordVisibility = (f) => {
+    setShowPassword((prev) => ({ ...prev, [f]: !prev[f] }));
+  };
+
+  // BANK: EDIT ONLY
+  const openBankModal = (bank) => {
+    setEditingBank(bank);
+    setIsBankModalOpen(true);
+  };
+
+  const closeBankModal = () => {
+    setIsBankModalOpen(false);
+    setEditingBank(null);
+  };
+
+  const handleSaveBank = async (data) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      await apiClient.put(
+        `/settings/farmers/${farmerId}/bank/${editingBank.id}`,
+        data,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const res = await apiClient.get(`/settings/farmers/${farmerId}/bank`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setBankDetails(res.data.bankDetails || []);
+      setModal({
+        isVisible: true,
+        message: t("settings.profile.bankUpdated"),
+        type: "success",
+      });
+    } catch (err) {
+      setModal({
+        isVisible: true,
+        message: t("settings.profile.bankUpdateError"),
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+      closeBankModal();
+    }
   };
 
   const renderProfileContent = () => {
-    const FarmLocation = ({ locations }) => {
-      return (
-        <div className="mt-4">
-          <h6
-            className="mb-4"
-            style={{
-              color: "#28a745",
-              fontWeight: "600",
-              borderBottom: "2px solid #28a745",
-              paddingBottom: "5px",
-            }}
-          >
-            {t("settings.profile.farmLocations")}
-          </h6>
-          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-            {locations.length > 0 ? (
-              locations.map((location, index) => (
-                <div key={index} className="col">
-                  <div
-                    className="card h-100 shadow-sm border-0 rounded-3"
-                    style={{
-                      transition: "transform 0.2s, box-shadow 0.2s",
-                      background:
-                        "linear-gradient(135deg, #ffffff 0%, #f8faf8 100%)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-5px)";
-                      e.currentTarget.style.boxShadow =
-                        "0 8px 16px rgba(0, 0, 0, 0.1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow =
-                        "0 4px 8px rgba(0, 0, 0, 0.05)";
-                    }}
-                  >
-                    <div className="card-body p-4">
-                      <div className="d-flex align-items-center mb-3">
-                        <FontAwesomeIcon
-                          icon={faMapMarkerAlt}
-                          style={{
-                            color: "#28a745",
-                            fontSize: "1.5rem",
-                            marginRight: "10px",
-                          }}
-                        />
-                        <h5
-                          className="card-title mb-0"
-                          style={{ color: "#28a745" }}
-                        >
-                          {location.farmName}
-                        </h5>
-                      </div>
-                      <p
-                        className="card-text text-muted"
-                        style={{ fontSize: "0.9rem" }}
-                      >
-                        {t("settings.profile.farmAddress")}:{" "}
-                        {location.farmLocation}
-                      </p>
-                    </div>
-                    <div className="card-footer bg-transparent border-0 d-flex justify-content-end p-3">
-                      <button
-                        className="btn btn-outline-warning btn-sm me-2"
-                        onClick={() => handleEditLocation(index)}
-                        style={{ padding: "4px 12px", fontSize: "0.875rem" }}
-                      >
-                        <FontAwesomeIcon icon={faEdit} />{" "}
-                        {t("settings.profile.edit")}
-                      </button>
-                      <button
-                        className="btn btn-outline-danger btn-sm"
-                        onClick={() => handleDeleteLocation(index)}
-                        style={{ padding: "4px 12px", fontSize: "0.875rem" }}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />{" "}
-                        {t("settings.profile.delete")}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center text-muted py-4">
-                {t("settings.profile.noLocations")}
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    };
-
     return (
       <div className="card my-4">
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-content-between align-items-center mb-4">
             <h5 className="card-title">{t("settings.profile.title")}</h5>
             {!isEditing && (
               <button
@@ -490,63 +440,44 @@ const SettingsPage = () => {
               </button>
             )}
           </div>
-          <p className="card-text">{t("settings.profile.description")}</p>
 
-          {loading && (
-            <div
-              className="text-center"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: "20px",
-                borderRadius: "10px",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-              }}
-            >
+          {loading ? (
+            <div className="text-center p-5">
               <video
                 autoPlay
                 loop
                 muted
-                style={{
-                  width: "300px",
-                  height: "300px",
-                  display: "block",
-                  margin: "0 auto",
-                }}
+                style={{ width: "300px", height: "300px" }}
               >
                 <source src={Loader} type="video/webm" />
-                Your browser does not support the video tag.
               </video>
             </div>
-          )}
-          {!loading && (
+          ) : (
             <>
+              {/* Profile Fields */}
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="fullName" className="form-label">
+                  <label className="form-label">
                     {t("settings.profile.fullName")}
                   </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="fullName"
                     name="fullName"
                     value={profileData.fullName}
                     readOnly={!isEditing}
                     onChange={handleInputChange}
                   />
                 </div>
-                <div className="col-md-6 mb-3"></div>
               </div>
-
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="phoneNumber" className="form-label">
+                  <label className="form-label">
                     {t("settings.profile.phoneNumber")}
                   </label>
                   <input
                     type="tel"
                     className="form-control"
-                    id="phoneNumber"
                     name="phoneNumber"
                     value={profileData.phoneNumber}
                     readOnly={!isEditing}
@@ -554,13 +485,12 @@ const SettingsPage = () => {
                   />
                 </div>
                 <div className="col-md-6 mb-3">
-                  <label htmlFor="location" className="form-label">
+                  <label className="form-label">
                     {t("settings.profile.location")}
                   </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="location"
                     name="location"
                     value={profileData.location}
                     readOnly={!isEditing}
@@ -569,10 +499,10 @@ const SettingsPage = () => {
                 </div>
               </div>
 
+              {/* Farm Locations */}
               <div className="mt-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <h6
-                    className="mb-0"
                     style={{
                       color: "#28a745",
                       fontWeight: "600",
@@ -589,17 +519,141 @@ const SettingsPage = () => {
                       setEditedLocation({ name: "", address: "" });
                       setIsFarmLocationModalVisible(true);
                     }}
-                    style={{ padding: "6px 12px" }}
                   >
                     <FontAwesomeIcon icon={faPlusCircle} className="me-2" />{" "}
                     {t("settings.profile.addFarm")}
                   </button>
                 </div>
                 {farmLocations.length > 0 ? (
-                  <FarmLocation locations={farmLocations} />
+                  <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                    {farmLocations.map((loc, i) => (
+                      <div key={i} className="col">
+                        <div className="card h-100 shadow-sm border-0 rounded-3">
+                          <div className="card-body p-4">
+                            <div className="d-flex align-items-center mb-3">
+                              <FontAwesomeIcon
+                                icon={faMapMarkerAlt}
+                                style={{
+                                  color: "#28a745",
+                                  fontSize: "1.5rem",
+                                  marginRight: "10px",
+                                }}
+                              />
+                              <h5
+                                className="card-title mb-0"
+                                style={{ color: "#28a745" }}
+                              >
+                                {loc.farmName}
+                              </h5>
+                            </div>
+                            <p
+                              className="card-text text-muted"
+                              style={{ fontSize: "0.9rem" }}
+                            >
+                              {t("settings.profile.farmAddress")}:{" "}
+                              {loc.farmLocation}
+                            </p>
+                          </div>
+                          <div className="card-footer bg-transparent border-0 d-flex justify-content-end p-3">
+                            <button
+                              className="btn btn-outline-warning btn-sm me-2"
+                              onClick={() => handleEditLocation(i)}
+                            >
+                              <FontAwesomeIcon icon={faEdit} />{" "}
+                              {t("settings.profile.edit")}
+                            </button>
+                            <button
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={() => handleDeleteLocation(i)}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />{" "}
+                              {t("settings.profile.delete")}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <div className="text-center text-muted py-4">
                     {t("settings.profile.noLocations")}
+                  </div>
+                )}
+              </div>
+
+              {/* BANK DETAILS – NO ADD BUTTON */}
+              <div className="mt-5">
+                <h6
+                  style={{
+                    color: "#28a745",
+                    fontWeight: "600",
+                    borderBottom: "2px solid #28a745",
+                    paddingBottom: "5px",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  {t("settings.profile.bankDetails")}
+                </h6>
+
+                {bankDetails.length > 0 ? (
+                  <div className="row g-3">
+                    {bankDetails.map((bank) => {
+                      const bankInfo = chapaBanks.find(
+                        (b) => b.id === bank.bankId
+                      );
+                      return (
+                        <div key={bank.id} className="col-md-6">
+                          <div className="card h-100 shadow-sm border-0 position-relative">
+                            <div
+                              className="position-absolute top-0 end-0 p-2 d-flex gap-1"
+                              style={{ zIndex: 1 }}
+                            >
+                              <button
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() => openBankModal(bank)}
+                              >
+                                <FontAwesomeIcon icon={faEditIcon} />
+                              </button>
+                            </div>
+                            <div className="card-body">
+                              <h6 className="card-title mb-1">
+                                {bank.accountName}
+                                {bank.isDefault && (
+                                  <span className="badge bg-success ms-2">
+                                    {t("settings.profile.default")}
+                                  </span>
+                                )}
+                              </h6>
+                              <p className="text-muted mb-1">
+                                <strong>{t("farmer.bank")}:</strong>{" "}
+                                {bankInfo?.name || "Unknown"}
+                              </p>
+                              <p className="text-muted mb-1">
+                                <strong>{t("farmer.accountNumber")}:</strong>{" "}
+                                {bank.accountNumber}
+                              </p>
+                              <p className="text-muted mb-0">
+                                <strong>{t("common.status")}:</strong>{" "}
+                                {bank.isVerified ? (
+                                  <span className="text-success">
+                                    <FontAwesomeIcon icon={faCheckCircle} />{" "}
+                                    {t("common.verified")}
+                                  </span>
+                                ) : (
+                                  <span className="text-warning">
+                                    {t("common.pending")}
+                                  </span>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center text-muted py-4">
+                    {t("settings.profile.noBankDetails")}
                   </div>
                 )}
               </div>
@@ -631,51 +685,39 @@ const SettingsPage = () => {
           <h5 className="card-title">{t("settings.password.title")}</h5>
           <p className="card-text">{t("settings.password.description")}</p>
           {loading && (
-            <div
-              className="text-center"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: "20px",
-                borderRadius: "10px",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-              }}
-            >
+            <div className="text-center p-5">
               <video
                 autoPlay
                 loop
                 muted
-                style={{
-                  width: "300px",
-                  height: "300px",
-                  display: "block",
-                  margin: "0 auto",
-                }}
+                style={{ width: "300px", height: "300px" }}
               >
                 <source src={Loader} type="video/webm" />
-                Your browser does not support the video tag.
               </video>
             </div>
           )}
           {!loading && (
             <>
               <div className="mb-3 position-relative">
-                <label htmlFor="currentPassword" className="form-label">
+                <label className="form-label">
                   {t("settings.password.currentPassword")}
                 </label>
                 <div className="input-group">
                   <input
                     type={showPassword.currentPassword ? "text" : "password"}
                     className="form-control"
-                    id="currentPassword"
-                    name="currentPassword"
                     value={passwordData.currentPassword}
-                    onChange={handlePasswordChange}
+                    onChange={(e) =>
+                      setPasswordData((prev) => ({
+                        ...prev,
+                        currentPassword: e.target.value,
+                      }))
+                    }
                   />
                   <button
                     className="btn btn-outline-secondary"
                     type="button"
                     onClick={() => togglePasswordVisibility("currentPassword")}
-                    style={{ zIndex: 1 }}
                   >
                     <FontAwesomeIcon
                       icon={showPassword.currentPassword ? faEyeSlash : faEye}
@@ -683,24 +725,26 @@ const SettingsPage = () => {
                   </button>
                 </div>
               </div>
-              <div className="mb-3 position-relative">
-                <label htmlFor="newPassword" className="form-label">
+              <div className="mb-3">
+                <label className="form-label">
                   {t("settings.password.newPassword")}
                 </label>
                 <div className="input-group">
                   <input
                     type={showPassword.newPassword ? "text" : "password"}
                     className="form-control"
-                    id="newPassword"
-                    name="newPassword"
                     value={passwordData.newPassword}
-                    onChange={handlePasswordChange}
+                    onChange={(e) =>
+                      setPasswordData((prev) => ({
+                        ...prev,
+                        newPassword: e.target.value,
+                      }))
+                    }
                   />
                   <button
                     className="btn btn-outline-secondary"
                     type="button"
                     onClick={() => togglePasswordVisibility("newPassword")}
-                    style={{ zIndex: 1 }}
                   >
                     <FontAwesomeIcon
                       icon={showPassword.newPassword ? faEyeSlash : faEye}
@@ -708,24 +752,26 @@ const SettingsPage = () => {
                   </button>
                 </div>
               </div>
-              <div className="mb-3 position-relative">
-                <label htmlFor="confirmPassword" className="form-label">
+              <div className="mb-3">
+                <label className="form-label">
                   {t("settings.password.confirmPassword")}
                 </label>
                 <div className="input-group">
                   <input
                     type={showPassword.confirmPassword ? "text" : "password"}
                     className="form-control"
-                    id="confirmPassword"
-                    name="confirmPassword"
                     value={passwordData.confirmPassword}
-                    onChange={handlePasswordChange}
+                    onChange={(e) =>
+                      setPasswordData((prev) => ({
+                        ...prev,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
                   />
                   <button
                     className="btn btn-outline-secondary"
                     type="button"
                     onClick={() => togglePasswordVisibility("confirmPassword")}
-                    style={{ zIndex: 1 }}
                   >
                     <FontAwesomeIcon
                       icon={showPassword.confirmPassword ? faEyeSlash : faEye}
@@ -766,7 +812,7 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <ul className="nav nav-tabs">
+          <ul className="nav nav-tabs mb-4">
             <li className="nav-item">
               <button
                 className={`nav-link ${
@@ -789,36 +835,31 @@ const SettingsPage = () => {
             </li>
           </ul>
 
-          {loading && (
-            <div
-              className="text-center"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: "20px",
-                borderRadius: "10px",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-              }}
-            >
+          {loading ? (
+            <div className="text-center p-5">
               <video
                 autoPlay
                 loop
                 muted
-                style={{
-                  width: "300px",
-                  height: "300px",
-                  display: "block",
-                  margin: "0 auto",
-                }}
+                style={{ width: "300px", height: "300px" }}
               >
                 <source src={Loader} type="video/webm" />
-                Your browser does not support the video tag.
               </video>
             </div>
+          ) : activeTab === "profile" ? (
+            renderProfileContent()
+          ) : (
+            renderPasswordContent()
           )}
-          {!loading &&
-            (activeTab === "profile"
-              ? renderProfileContent()
-              : renderPasswordContent())}
+
+          {/* EDIT BANK MODAL */}
+          <BankDetailsModal
+            isOpen={isBankModalOpen}
+            onClose={closeBankModal}
+            bank={editingBank}
+            chapaBanks={chapaBanks}
+            onSave={handleSaveBank}
+          />
 
           <StylishModal
             isVisible={modal.isVisible && !isDeleteConfirmationVisible}
@@ -826,6 +867,7 @@ const SettingsPage = () => {
             type={modal.type}
             onClose={handleCloseModal}
           />
+
           <ConfirmationModal
             isVisible={isDeleteConfirmationVisible}
             message={t("settings.deleteAccount.confirm")}
@@ -834,6 +876,7 @@ const SettingsPage = () => {
           />
         </div>
       </div>
+
       <FarmLocationModal
         isVisible={isFarmLocationModalVisible}
         onClose={() => setIsFarmLocationModalVisible(false)}

@@ -1,3 +1,4 @@
+// src/Farmer/pages/Orders.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../Css/Devices.css";
@@ -5,27 +6,12 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import OrderCard from "../components/OrderCard";
 import OrderDetailModal from "../components/OrderDetailModal";
-import ConfirmationModal from "../components/ConfirmationModal";
+import CancelReasonModal from "../components/CancelReasonModal"; // NEW
 import StylishModal from "../components/StylishModal";
 import { useTranslation } from "react-i18next";
-import apiClient from "../../api/api"; // Import the api.js client
+import apiClient from "../../api/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loader from "../../assets/Agriculture Loader.mp4";
-
-class ErrorBoundary extends React.Component {
-  state = { hasError: false };
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <h1>Something went wrong. Please refresh the page.</h1>;
-    }
-    return this.props.children;
-  }
-}
 
 const Orders = () => {
   const { t } = useTranslation();
@@ -35,10 +21,12 @@ const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState({ startDate: "" });
   const [isDetailModalVisible, setDetailModalVisible] = useState(false);
-  const [isConfirmationModalVisible, setConfirmationModalVisible] =
+  const [isCancelReasonModalVisible, setCancelReasonModalVisible] =
     useState(false);
   const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrderIdForCancel, setSelectedOrderIdForCancel] =
+    useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,7 +42,6 @@ const Orders = () => {
       }
 
       const response = await apiClient.get("/orders");
-
       const transformedOrders = response.data
         .map((order) => {
           const firstProduct = order.products?.[0] || {};
@@ -75,7 +62,6 @@ const Orders = () => {
         })
         .sort((a, b) => new Date(b.date) - new Date(a.date));
       setOrders(transformedOrders);
-      console.log("Transformed orders:", transformedOrders);
     } catch (err) {
       console.error(
         "Failed to fetch orders:",
@@ -97,8 +83,6 @@ const Orders = () => {
       const matchesTab =
         activeTab === "all" ||
         normalizedStatus === activeTab ||
-        (activeTab === "pending" && normalizedStatus === "pending") ||
-        (activeTab === "processing" && normalizedStatus === "processing") ||
         (activeTab === "in transit" && normalizedStatus === "in transit");
 
       const matchesSearch =
@@ -125,7 +109,6 @@ const Orders = () => {
   const handleOpenDetailModal = (order) => {
     setSelectedOrder(order);
     setDetailModalVisible(true);
-    console.log("Selected order for modal:", order);
   };
 
   const handleCloseDetailModal = () => {
@@ -133,52 +116,45 @@ const Orders = () => {
     setSelectedOrder(null);
   };
 
-  const handleOpenConfirmationModal = (order) => {
-    setSelectedOrder(order);
-    setDetailModalVisible(false);
-    setConfirmationModalVisible(true);
+  const handleCancelOrder = (order) => {
+    setSelectedOrderIdForCancel(order.orderId); // ← Use orderId, not whole object
+    setCancelReasonModalVisible(true);
   };
 
-  const handleCloseConfirmationModal = () => {
-    setConfirmationModalVisible(false);
-  };
-
-  const handleConfirmCancel = async () => {
-    setLoading(true);
+  const handleConfirmCancel = async (orderId, reason) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login", { replace: true });
-        return;
-      }
-      if (!selectedOrder || !selectedOrder.orderId) {
-        setSuccessMessage(t("orders.orderFailed"));
-        setSuccessModalVisible(true);
-        return;
-      }
+      const response = await apiClient.put(`/orders/${orderId}/cancel`, {
+        reason,
+      });
 
-      await apiClient.patch(`/orders/${selectedOrder.orderId}/cancel`);
+      setOrders(
+        orders.map((o) =>
+          o.orderId === orderId
+            ? { ...o, status: "cancelled", cancelReason: reason }
+            : o
+        )
+      );
 
-      setConfirmationModalVisible(false);
-      setSuccessMessage(t("orders.orderSuccess"));
+      setCancelReasonModalVisible(false);
+      setSuccessMessage(`Order ${orderId} cancelled. Full refund initiated.`);
       setSuccessModalVisible(true);
-      fetchOrders();
-    } catch (err) {
-      console.error("Failed to cancel order:", err.message);
-      setSuccessMessage(t("orders.orderFailed"));
+
+      // Optional: refresh
+      // fetchOrders();
+    } catch (error) {
+      console.error("Error cancelling:", error);
+      const msg = error.response?.data?.message || "Failed to cancel order.";
+      setSuccessMessage(msg);
       setSuccessModalVisible(true);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleCloseSuccessModal = () => {
     setSuccessModalVisible(false);
-    setSelectedOrder(null);
   };
 
   return (
-    <ErrorBoundary>
+    <>
       <Navbar />
       <div className="d-flex">
         <Sidebar />
@@ -193,66 +169,25 @@ const Orders = () => {
 
           <div className="bg-white p-4 rounded shadow-sm">
             <ul className="nav nav-pills mb-4">
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "all" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("all")}
-                >
-                  {t("common.all")}
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "pending" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("pending")}
-                >
-                  {t("orders.pending")}
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "processing" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("processing")}
-                >
-                  {t("orders.processing")}
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "in transit" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("in transit")}
-                >
-                  {t("delivery.inTransit")}
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "delivered" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("delivered")}
-                >
-                  {t("orders.delivered")}
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${
-                    activeTab === "cancelled" ? "bg-success text-white" : ""
-                  }`}
-                  onClick={() => setActiveTab("cancelled")}
-                >
-                  {t("orders.cancelled")}
-                </button>
-              </li>
+              {[
+                "all",
+                "pending",
+                "processing",
+                "in transit",
+                "delivered",
+                "cancelled",
+              ].map((tab) => (
+                <li className="nav-item" key={tab}>
+                  <button
+                    className={`nav-link ${
+                      activeTab === tab ? "bg-success text-white" : ""
+                    }`}
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {t(`orders.${tab}`)}
+                  </button>
+                </li>
+              ))}
             </ul>
 
             <div className="mb-4 d-flex align-items-center">
@@ -269,9 +204,7 @@ const Orders = () => {
                 className="form-control"
                 style={{ width: "150px" }}
                 value={dateFilter.startDate}
-                onChange={(e) =>
-                  setDateFilter({ ...dateFilter, startDate: e.target.value })
-                }
+                onChange={(e) => setDateFilter({ startDate: e.target.value })}
               />
             </div>
 
@@ -298,7 +231,7 @@ const Orders = () => {
                       key={order.orderId}
                       order={order}
                       onViewDetails={handleOpenDetailModal}
-                      onCancelOrder={handleOpenConfirmationModal}
+                      onCancelOrder={handleCancelOrder}
                     />
                   ))
                 ) : (
@@ -311,26 +244,29 @@ const Orders = () => {
           </div>
         </div>
       </div>
+
       <OrderDetailModal
         isVisible={isDetailModalVisible}
         order={selectedOrder}
         onClose={handleCloseDetailModal}
-        onCancelOrder={handleOpenConfirmationModal}
+        onCancelOrder={handleCancelOrder}
         onRefresh={fetchOrders}
       />
-      <ConfirmationModal
-        isVisible={isConfirmationModalVisible}
-        message={t("confirmations.areYouSure")}
-        onClose={handleCloseConfirmationModal}
+
+      <CancelReasonModal
+        show={isCancelReasonModalVisible}
+        onClose={() => setCancelReasonModalVisible(false)}
         onConfirm={handleConfirmCancel}
+        orderId={selectedOrderIdForCancel}
       />
+
       <StylishModal
         isVisible={isSuccessModalVisible}
         message={successMessage}
         type="success"
         onClose={handleCloseSuccessModal}
       />
-    </ErrorBoundary>
+    </>
   );
 };
 

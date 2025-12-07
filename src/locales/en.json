@@ -31,7 +31,9 @@
     "codeSentToEmail": "Code sent to your email",
         "codeSent": "Verification code sent successfully.",
     "codeVerified": "Code verified successfully.",
-    "passwordReset": "Password has been reset successfully."
+    "passwordReset": "Password has been reset successfully.",
+    "loggingIn": "Logging in...",
+    "registering": "Registering..."
     
   },
   "navigation": {
@@ -48,7 +50,8 @@
     "transactions": "Transactions",
     "settings": "Settings",
     "profile": "Profile",
-    "admin": "Admin Panel"
+    "admin": "Admin Panel",
+    "browseProducts": "Browse Products"
 
   },
   "dashboard": {
@@ -121,8 +124,10 @@
     "farmer": "Farmer",
     "buyer": "Buyer",
     "status": "Status",
+    "all": "All orders",
     "pending": "Pending",
     "processing": "Processing",
+    "in transit": "In Transit",
     "shipped": "Shipped",
     "delivered": "Delivered",
     "cancelled": "Cancelled",
@@ -132,8 +137,10 @@
     "orderdate": "Order Date",
     "cancelOrder": "Cancel Order",
     "orderDetail": "Order Details",
-    "orderSummary": "Order Summary",
-    "reopenOrder": "Reopen Order"
+    "orderSummary": "Order Summary", 
+    "reopenOrder": "Reopen Order",
+    "cancelWarning": "This order will be cancelled. Are you sure?",
+    "enterReason": "Reason for Cancellation"
 
   },
   "delivery": {
@@ -247,17 +254,233 @@
     "messageSent": "Message sent successfully",
     "messageFailed": "Failed to send message"
   },
-  "admin": {
-    "title": "Admin Panel",
-    "manageUsers": "Manage Users",
-    "manageFarmers": "Manage Farmers",
-    "manageBuyers": "Manage Buyers",
-    "manageProducts": "Manage Products",
-    "manageOrders": "Manage Orders",
-    "managePayments": "Manage Payments",
-    "manageTips": "Manage Farming Tips",
-    "systemSettings": "System Settings",
-    "reports": "Reports"
+  "buyerDashboard": {
+    "welcome": "Welcome",
+    "overview": "Here's an overview of your buying activity",
+    "browseProducts": "Browse Products",
+    "totalOrders": "Total Orders Placed",
+    "pendingDeliveries": "Pending Deliveries",
+    "completedDeliveries": "Completed Deliveries",
+    "pendingDesc": "Expected within 2-3 days",
+    "orderedOn": "Ordered on",
+    "recentOrders": "Recent Orders",
+    "orderDetails" : "Order Details",
+    "recentProducts": "Recently Products",
+    "viewAllOrders": "View All Orders",
+    "freshFromFarmers": "Fresh from Farmers",
+    "noOrders": "You have not placed any orders yet."
+  },
+  
+  "browseProducts": {
+    "title": "Browse Products",
+    "subtitle": "Discover fresh produce directly from farmers",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Name, farmer, location...",
+    "categoryLabel": "Category",
+    "priceRange": "Price Range",
+    "resetFilters": "Reset Filters",
+    "loading": "Loading...",
+    "noProductsFound": "No products found.",
+    "showAll": "Show All"
+  },
+  "productDetails": {
+    "backToBrowse": "Back to Browse",
+    "loading": "Loading...",
+    "errorLoad": "Failed to load product",
+    "farmer": "Farmer",
+    "available": "Available",
+    "quantity": "Quantity",
+    "total": "Total",
+    "tax": "Tax",
+    "delivery": "Delivery",
+    "addToCart": "Add to Cart",
+    "adding": "Adding...",
+    "added": "Added!",
+    "buyNow": "Buy Now",
+    "moreFromFarmer": "More from this Farmer",
+    "reviewsTitle": "Customer Reviews",
+    "writeReview": "Write a Review",
+    "rating": "Rating",
+    "yourReview": "Your Review",
+    "reviewPlaceholder": "Share your experience...",
+    "submitting": "Submitting...",
+    "submitReview": "Submit Review",
+    "noReviews": "No reviews yet. Be the first!",
+    "deleteReview": "Delete review",
+    "deliveryAddress": "Delivery Address",
+    "whereDeliver": "Where should we deliver?",
+    "addressPlaceholder": "e.g., Bole, Near Medhanealem Church, House #123, Addis Ababa",
+    "addressNote": "This address will be used for delivery. You can update it later.",
+    "addressRequired": "Please enter your delivery address",
+    "paymentFailed": "Failed to initialize payment",
+    "networkError": "Network error. Please try again.",
+    "reviewFailed": "Failed to submit review",
+    "deleteFailed": "Failed to delete review",
+    "processing": "Processing...",
+    "proceedPayment": "Proceed to Payment",
+    "confirmDelete": "Are you sure you want to delete your review? This action cannot be undone."
+  },
+  "buyerOrders": {
+    "title": "My Orders",
+    "subtitle": "Track and manage your purchases",
+    "historyTitle": "Order History",
+    "searchPlaceholder": "Search by product, order ID, farmer...",
+    "loading": "Loading...",
+    "loadingText": "Loading orders...",
+    "noOrders": "No orders found.",
+    "cancelSuccess": "Order {{orderId}} cancelled. Refund initiated.",
+    "cancelFailed": "Failed to cancel order.",
+    "card": {
+      "orderId": "Order #{{id}}",
+      "moreItems": "+ {{count}} more",
+      "farmer": "Farmer",
+      "viewDetails": "View Details"
+    },
+    "tabs": {
+      "all": "All Orders",
+      "pending": "Pending",
+      "processing": "Processing",
+      "in_transit": "In Transit",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "modal": {
+      "title": "Order Details",
+      "itemsTitle": "Items Ordered",
+      "orderDate": "Order Date",
+      "expectedDelivery": "Expected Delivery",
+      "estimatedDelivery": "2 days after order",
+      "farmer": "Farmer",
+      "totalAmount": "Total Amount",
+      "cancelOrder": "Cancel Order"
+    }
+  },
+  "buyerProfile": {
+    "pageTitle": "Account Settings",
+    "pageSubtitle": "Manage your account settings and preferences",
+    "tabs": {
+      "profile": "Profile",
+      "password": "Password",
+      "account": "Account"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "loading": "Loading profile...",
+      "name": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "address": "Address",
+      "success": "Profile updated successfully!",
+      "updateFailed": "Failed to update profile."
+    },
+    "password": {
+      "title": "Change Password",
+      "current": "Current Password",
+      "new": "New Password",
+      "confirm": "Confirm New Password",
+      "update": "Update Password",
+      "success": "Password updated!",
+      "updateFailed": "Failed to update password.",
+      "mismatch": "Passwords do not match.",
+      "minLength": "Password must be 6+ characters."
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "warning": "Once you delete your account, there is no going back. Please be certain.",
+      "delete": "Delete Account",
+      "deleted": "Account deleted. Redirecting...",
+      "deleteFailed": "Failed to delete account.",
+      "confirmTitle": "Confirm Deletion",
+      "confirmQuestion": "Are you sure?",
+      "confirmWarning": "This action is permanent."
+    },
+    "errors": {
+      "loadFailed": "Failed to load profile data."
+    }
+  },
+  "cart": {
+    "header": {
+      "title": "Shopping Cart",
+      "clearCart": "Clear Cart"
+    },
+    "item": {
+      "farmer": "Farmer"
+    },
+    "empty": {
+      "title": "Your cart is empty",
+      "subtitle": "Add some fresh products to get started!",
+      "shopNow": "Start Shopping"
+    },
+    "summary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal",
+      "tax": "Tax (15%)",
+      "delivery": "Delivery Fee (10%)",
+      "total": "Total",
+      "payNow": "Pay Now",
+      "continueShopping": "Continue Shopping",
+      "secureCheckout": "Secure checkout powered by Chapa"
+    },
+    "modal": {
+      "title": "Delivery Address",
+      "label": "Where should we deliver your order?",
+      "placeholder": "e.g., Bole, Near Medhanealem Church, House #123, Addis Ababa",
+      "note": "This address will be used for all items in your cart.",
+      "addressError": "Please enter your delivery address",
+      "proceed": "Proceed to Payment"
+    },
+    "alerts": {
+      "empty": "Your cart is empty!",
+      "initFailed": "Failed to initialize payment",
+      "networkError": "Network error. Please try again."
+    }
+  },
+  "paymentResult": {
+    "status": {
+      "verifying": "Verifying payment...",
+      "success": "Payment successful! Your order is confirmed."
+    },
+    "loading": {
+      "title": "Verifying Your Payment...",
+      "subtitle": "Please do not close or refresh this page.",
+      "connecting": "Connecting to secure gateway"
+    },
+    "failure": {
+      "title": "Payment Issue"
+    },
+    "labels": {
+      "orderId": "Order ID"
+    },
+    "buttons": {
+      "viewOrders": "View My Orders",
+      "contactSupport": "Contact Support",
+      "continueShopping": "Continue Shopping",
+      "downloadReceipt": "Download PDF Receipt"
+    },
+    "errors": {
+      "invalidLink": "Invalid payment link. Missing transaction reference.",
+      "missingCart": "Missing cart payment data.",
+      "invalidCart": "Invalid cart data.",
+      "notFound": "Order not found. It may still be processing. Refresh in 1 minute.",
+      "loadFailed": "Failed to load receipt. Contact support if you were charged."
+    },
+    "receipt": {
+      "slogan": "Fresh from Farm to Table",
+      "contact": "Addis Ababa, Ethiopia | support@agrilink.et | +251 911 223 344",
+      "orderId": "Order ID",
+      "transactionId": "Transaction ID",
+      "dateTime": "Date & Time",
+      "purchaseSummary": "Purchase Summary",
+      "per": "per",
+      "from": "from",
+      "perUnit": "per unit",
+      "subtotal": "Subtotal",
+      "tax": "Tax (15% VAT)",
+      "delivery": "Delivery Fee (10%)",
+      "totalPaid": "TOTAL PAID",
+      "thankYou": "Thank You!",
+      "deliveryTime": "Your order will be delivered in 2 days."
+    }
   },
   "settings": {
     "accountSettings": {
@@ -284,7 +507,23 @@
       "farmAddress": "Farm address",
       "updateSuccess": "Profile updated successfully!",
       "updateError": "Failed to update profile. Please try again.",
-      "delete": "Delete Farm"
+      "delete": "Delete Farm",
+      "bankDetails": "Bank Details",
+      "addBank": "Add Bank Account",
+      "editBank": "Edit Bank Account",
+      "bankId": "Bank",
+      "accountNumber": "Account Number",
+      "accountName": "Account Holder Name",
+      "setDefault": "Set as default",
+      "update": "Update",
+      "cancel": "Cancel",
+      "bankUpdated": "Bank details updated successfully!",
+      "bankUpdateError": "Failed to update bank details.",
+      "bankDeleted": "Bank account deleted.",
+      "bankDeleteError": "Failed to delete bank account.",
+      "confirmDeleteBank": "Are you sure you want to delete this bank account?",
+      "noBankDetails": "No bank account added yet.",
+      "default": "Default"
     },
     "password": {
       "title": "Change Password",
@@ -329,6 +568,7 @@
   },
   "errors": {
     "required": "This field is required",
+    "roleRequired": "Role is required",
     "invalidEmail": "Invalid email address",
     "passwordMismatch": "Passwords do not match",
     "networkError": "Network error, please try again later",
@@ -347,7 +587,10 @@
     "confirmPasswordRequired": "Confirm password is required.",
     "passwordMin6": "Password must be at least 6 characters.",
     "passwordResetFailed": "Failed to reset password. Please try again.",
-    "invalidPhone": "Phone number must be exactly 10 digits"
+    "invalidPhone": "Phone number must be exactly 10 digits",
+    "accountLength": "Account must be {{expected}} digits (you entered {{actual}})",
+    "bankLoadFailed": "Failed to load banks. Please check your connection and try again.",
+    "selectBank": "Please select a bank."
   },
   "confirmations": {
     "title": "Confirmation",
@@ -404,7 +647,18 @@
     "chooseImage": "Choose Image",
     "updatedAt": "Updated At",
     "language": "Language",
-    "role": "Role"
+    "role": "Role",
+    "digits": "digits",
+    "enterDigits": "Enter account number (digits only)",
+    "fullNameOnAccount": "Full name as on bank account",
+    "update": "Update",
+    "verified": "Verified",
+    "select": "Select",
+    "more": "More",
+    "price": "Price",
+    "products": "Products",
+    "processing": "Processing...",
+    "deleting": "Deleting..."
   },
   "roles": {
     "farmer": "Farmer" ,
@@ -477,6 +731,342 @@
     "fetchError": "Failed to fetch weather data",
     "unit": "°C",
     "iconAlt": "Weather icon"
+  },
+  "farmer": {
+    "farmName":"Farm name",
+    "farmLocation": "Farm location",
+    "farmNamePlaceholder": "Enter your farm name",
+    "farmLocationPlaceholder": "Enter your farm location",
+    "bank": "Bank",
+    "selectBank": "— Select your bank —",
+    "accountNumber": "Account Number",
+    "accountNumberPlaceholder": "Enter only digits",
+    "accountName": "Account Holder Name",
+    "accountNamePlaceholder": "Full name as on bank account",
+    "accountLengthHint": "Must be exactly {{length}} digits",
+    "digits": "digits"
+  },
+  "mainpage": {
+    "navbar": {
+      "brand": "AgriLink Ethiopia",
+      "login": "Login",
+      "language": "Language",
+      "links": {
+        "home": "Home",
+        "about": "About",
+        "contact": "Contact"
+      }
+    },
+    "hero": {
+      "badge": "Connecting Ethiopia's Agricultural Community",
+      "title": "Fresh Produce,",
+      "titleHighlight": "Direct from Farm",
+      "description": "AgriLink Ethiopia connects farmers directly with buyers, eliminating middlemen and ensuring fair prices.",
+      "btnSell": "Start Selling",
+      "btnBrowse": "Browse Products",
+      "stats": {
+        "farmers": "Active Farmers",
+        "deliveries": "Successful Deliveries",
+        "satisfaction": "Satisfaction Rate"
+      }
+    },
+    "how": {
+      "title": "How AgriLink Works",
+      "subtitle": "Three simple steps to connect producers with consumers",
+      "steps": {
+        "profile": {
+          "title": "Create Profile",
+          "desc": "Sign up and set up your farmer or buyer profile."
+        },
+        "list": {
+          "title": "List or Browse",
+          "desc": "Farmers list produce. Buyers explore by location and quality."
+        },
+        "delivery": {
+          "title": "Secure Delivery",
+          "desc": "Fast, tracked delivery with secure payments."
+        }
+      }
+    },
+    "why": {
+      "title": "Why Farmers & Buyers Choose AgriLink?",
+      "imageAlt": "AgriLink in Action",
+      "items": {
+        "direct": {
+          "title": "Direct Connection",
+          "desc": "No middlemen — farmers sell directly to buyers."
+        },
+        "pricing": {
+          "title": "Fair Pricing",
+          "desc": "Transparent pricing ensures farmers earn more."
+        },
+        "quality": {
+          "title": "Quality Assurance",
+          "desc": "Verified listings and buyer ratings."
+        },
+        "logistics": {
+          "title": "Easy Logistics",
+          "desc": "Real-time tracking and coordinated delivery."
+        },
+        "payments": {
+          "title": "Secure Payments",
+          "desc": "Safe transactions with instant payouts."
+        },
+        "community": {
+          "title": "Community Growth",
+          "desc": "Join 2,000+ farmers and buyers nationwide."
+        }
+      }
+    },
+    "impact": {
+      "title": "Our Impact in Numbers",
+      "subtitle": "Growing Ethiopia's agricultural marketplace",
+      "stats": {
+        "farmers": "Registered Farmers",
+        "deliveries": "Successful Deliveries",
+        "buyers": "Active Buyers",
+        "satisfaction": "Satisfaction Rate"
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Agriculture?",
+      "subtitle": "Join thousands of farmers and buyers thriving on AgriLink.",
+      "btnFarmer": "Join as Farmer",
+      "btnBuyer": "Browse as Buyer"
+    }
+  },
+  "about": {
+    "hero": {
+      "badge": "About AgriLink Ethiopia",
+      "title": "Empowering Farmers,",
+      "titleHighlight": "Transforming Agriculture",
+      "description": "AgriLink connects Ethiopian farmers directly to markets using technology, transparency, and real-time insights.",
+      "btn": "Explore Our Mission"
+    },
+    "vision": {
+      "title": "Our Mission",
+      "mission": "To empower Ethiopian farmers by providing a centralized digital platform that connects producers, buyers; streamlines product listing and marketplace transactions; enhances delivery coordination and digital payments; and delivers accessible, multilingual farming knowledge—promoting transparency, efficiency, and sustainable growth in the agricultural sector.",
+      "description": "We eliminate middlemen, reduce waste, and deliver real-time insights so every farmer can thrive in a connected ecosystem.",
+      "imageAlt": "AgriLink in Action"
+    },
+    "features": {
+      "title": "Key Features",
+      "subtitle": "Everything farmers and buyers need in one platform",
+      "items": {
+        "marketplace": {
+          "title": "Direct Marketplace",
+          "desc": "Farmers sell directly to buyers — no middlemen."
+        },
+        "tracking": {
+          "title": "Real-Time Tracking",
+          "desc": "Track deliveries from farm to table."
+        },
+        "alerts": {
+          "title": "Smart Alerts",
+          "desc": "Weather, pest, and market price notifications."
+        },
+        "payments": {
+          "title": "Secure Payments",
+          "desc": "Instant payouts via Chapa integration."
+        },
+        "multilingual": {
+          "title": "Multilingual",
+          "desc": "Supports Amharic, Oromo, English Languages."
+        },
+        "mobile": {
+          "title": "Mobile-First",
+          "desc": "Works offline in rural areas."
+        }
+      }
+    },
+    "impact": {
+      "title": "Why It Matters",
+      "subtitle": "Real impact on farmers and communities",
+      "stats": {
+        "waste": "Reduced Waste",
+        "earnings": "Higher Earnings",
+        "users": "Active Users"
+      }
+    }
+  },
+  "contactUs": {
+    "hero": {
+      "badge": "Get In Touch",
+      "title": "We'd Love to Hear",
+      "titleHighlight": "From You",
+      "description": "Have questions? Need support? Ready to join? Reach out anytime.",
+      "btn": "Send Message"
+    },
+    "info": {
+      "items": {
+        "email": {
+          "title": "Email",
+          "content": "agrilinkethiopia@gmail.com",
+          "subtext": "24-hour response"
+        },
+        "phone": {
+          "title": "Phone",
+          "content": "+251 1 234 5678",
+          "subtext": "9 AM - 6 PM EAT"
+        },
+        "office": {
+          "title": "Office",
+          "content": "Addis Ababa",
+          "subtext": "Ethiopia"
+        },
+        "response": {
+          "title": "Response",
+          "content": "24 Hours",
+          "subtext": "Weekdays & weekends"
+        }
+      }
+    },
+    "form": {
+      "title": "Send us a Message",
+      "labels": {
+        "name": "Full Name",
+        "email": "Email Address",
+        "type": "Subject Type",
+        "subject": "Subject",
+        "message": "Your Message"
+      },
+      "placeholders": {
+        "name": "e.g., Amanuel Tesfaye",
+        "email": "e.g., amanuelt@example.com",
+        "subject": "Brief topic of your message",
+        "message": "Type your detailed message here..."
+      },
+      "options": {
+        "general": "General Inquiry",
+        "support": "Technical Support",
+        "farmer": "Farmer Registration",
+        "buyer": "Buyer Registration",
+        "delivery": "Delivery Issue"
+      },
+      "submit": "Send Message",
+      "sending": "Sending...",
+      "success": {
+        "title": "Thank you!",
+        "message": "Your message was sent. We'll reply within 24 hours."
+      },
+      "errors": {
+        "title": "Error",
+        "name": "Name is required.",
+        "email": "Email is required.",
+        "subject": "Subject is required.",
+        "message": "Message is required.",
+        "emailValid": "Valid email required.",
+        "sendFailed": "Failed to send. Try again or email agrilinkethiopia@gmail.com"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "items": {
+        "delivery": {
+          "q": "How long does delivery take?",
+          "a": "2-3 business days."
+        },
+        "payment": {
+          "q": "What payment methods?",
+          "a": "Chapa handles all payment methods."
+        },
+        "cancel": {
+          "q": "Can I cancel order products?",
+          "a": "Yes, until it is not shipped."
+        },
+        "registration": {
+          "q": "Is registration free?",
+          "a": "Yes, only commission on sales."
+        },
+        "support": {
+          "q": "How to reach support?",
+          "a": "Email, phone, or app."
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Join AgriLink?",
+      "subtitle": "Start your journey today. Register as a farmer or buyer.",
+      "btnStart": "Get Started",
+      "btnLearn": "Learn More"
+    }
+  },
+  "privacyPolicy": {
+    "hero": {
+      "badge": "Privacy & Security",
+      "title": "Your Data Is",
+      "titleHighlight": "Safe With Us",
+      "description": "We protect your privacy with enterprise-grade security and full transparency.",
+      "btn": "Read Policy"
+    },
+    "intro": "AgriLink Ethiopia values your trust. Here’s exactly how we collect, use, and protect your data.",
+    "sections": {
+      "collect": {
+        "title": "1. What We Collect",
+        "items": {
+          "personal": "Personal info: name, phone, email, region, role",
+          "products": "Product listings: type, price, quantity, photos",
+          "transactions": "Transaction history & delivery logs",
+          "behavior": "App behavior & preferences",
+          "location": "Location (for delivery only)"
+        }
+      },
+      "why": {
+        "title": "2. Why We Collect It",
+        "intro": "Your data powers a better experience:",
+        "items": {
+          "matches": "Personalized market matches",
+          "alerts": "Real-time alerts & farming tips",
+          "payments": "Secure payments & delivery tracking",
+          "improvements": "Platform improvements"
+        }
+      },
+      "security": {
+        "title": "3. Data Protection & Security",
+        "items": {
+          "encryption": "Passwords encrypted with bcrypt",
+          "auth": "Secured authentication & session control",
+          "roles": "Role-based access (farmer, buyer)",
+          "nosell": "Your Data will never be sold or rented"
+        }
+      },
+      "rights": {
+        "title": "4. Your Rights",
+        "items": {
+          "update": "Update your profile anytime",
+          "delete": "Delete account & request full data removal",
+          "laws": "Protected under Ethiopian data laws"
+        }
+      },
+      "contact": {
+        "title": "5. Questions?",
+        "message": "Have a privacy concern?",
+        "link": "Contact us",
+        "response": "— we respond within 24 hours."
+      }
+    }
+  },
+  "footer": {
+    "brand": "AgriLink Ethiopia",
+    "description": "Bridging farmers and buyers with technology that empowers local agriculture.",
+    "links": {
+      "title": "Quick Links",
+      "items": {
+        "home": "Home",
+        "about": "About Us",
+        "contact": "Contact",
+        "privacy": "Privacy Policy"
+      }
+    },
+    "social": {
+      "title": "Follow Us",
+      "items": {
+        "facebook": "Follow us on Facebook",
+        "twitter": "Follow us on Twitter",
+        "instagram": "Follow us on Instagram",
+        "linkedin": "Follow us on LinkedIn"
+      }
+    },
+    "copyright": " AgriLink Ethiopia. All rights reserved."
   }
-  
 }
