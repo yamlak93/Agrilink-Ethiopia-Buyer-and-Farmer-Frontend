@@ -22,9 +22,9 @@ import {
   Edit,
   Trash2,
 } from "lucide-react";
-import Navbar from "./navbar";
-import Footer from "./footer";
-import "../css/PrivacyPage.css";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
+import "../Css/PrivacyPage.css";
 import { useTranslation } from "react-i18next";
 
 export default function PrivacyPage() {
