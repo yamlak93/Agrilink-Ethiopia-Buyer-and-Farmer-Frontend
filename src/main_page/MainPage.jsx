@@ -15,7 +15,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import heroImg from "../assets/heroImg.jpg";
 import whyAgrilink from "../assets/whyAgrilink.png";
-import "../css/MainPage.css";
+import "../Css/MainPage.css";
 import { useTranslation } from "react-i18next";
 
 export default function MainPage() {
