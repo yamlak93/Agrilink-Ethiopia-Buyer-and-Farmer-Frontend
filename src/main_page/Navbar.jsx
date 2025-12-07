@@ -4,7 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import logoGreen from "../assets/logoGreen.png";
 import { FaGlobe } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
-import "../css/Navbar.css";
+import "../Css/Navbar.css";
 import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
