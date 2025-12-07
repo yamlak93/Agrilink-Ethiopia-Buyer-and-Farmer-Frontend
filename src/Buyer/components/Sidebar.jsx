@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next"; // Import translation
-import "../../Css/sidebar.css";
+import "../../Css/Sidebar.css";
 import {
   FaChartBar,
   FaCube,
