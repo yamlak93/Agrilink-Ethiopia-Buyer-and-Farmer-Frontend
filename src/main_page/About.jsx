@@ -12,8 +12,8 @@ import {
   Shield,
   TrendingUp,
 } from "lucide-react";
-import Navbar from "./navbar";
-import Footer from "./footer";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 import aboutImg from "../assets/aboutImg.png";
 import "../css/AboutPage.css";
 import vision from "../assets/vision.jpg";
