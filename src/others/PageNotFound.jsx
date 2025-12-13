@@ -76,7 +76,7 @@ const PageNotFound = () => {
                   : "/buyer/dashboard";
               navigate(dashboardPath);
             } else {
-              navigate("/");
+              navigate("/home");
             }
           }}
           className="btn btn-success btn-lg font-weight-semibold"
